@@ -13,6 +13,18 @@ impl Color {
     pub fn new(red: f64, green: f64, blue: f64) -> Self {
         Self { red, blue, green }
     }
+
+    pub fn red_to_int(&self) -> u8 {
+        (self.red * 255.0).clamp(0.0, 255.0).round() as u8
+    }
+
+    pub fn blue_to_int(&self) -> u8 {
+        (self.blue * 255.0).clamp(0.0, 255.0).round() as u8
+    }
+
+    pub fn green_to_int(&self) -> u8 {
+        (self.green * 255.0).clamp(0.0, 255.0).round() as u8
+    }
 }
 
 impl PartialEq for Color {
