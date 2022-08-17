@@ -46,6 +46,10 @@ impl Tuple {
             w: self.w / mag,
         }
     }
+
+    pub fn dot_product(&self, other: &Self) -> f64 {
+        self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
+    }
 }
 
 impl PartialEq for Tuple {
@@ -273,5 +277,12 @@ mod tests {
         );
 
         assert!(float_near_equal(v.normalize().magnitude(), 1.0));
+    }
+
+    #[test]
+    fn dot_product() {
+        let a = Tuple::vector(1.0, 2.0, 3.0);
+        let b = Tuple::vector(2.0, 3.0, 4.0);
+        assert!(float_near_equal(a.dot_product(&b), 20.0));
     }
 }
