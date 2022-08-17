@@ -1,3 +1,5 @@
+pub mod canvas;
+pub mod color;
 pub mod tuple;
 
 pub fn float_near_equal(a: f64, b: f64) -> bool {
