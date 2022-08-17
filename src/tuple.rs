@@ -12,15 +12,6 @@ pub struct Tuple {
     pub w: f64,
 }
 
-impl PartialEq for Tuple {
-    fn eq(&self, other: &Self) -> bool {
-        float_near_equal(self.x, other.x)
-            && float_near_equal(self.y, other.y)
-            && float_near_equal(self.z, other.z)
-            && float_near_equal(self.w, other.w)
-    }
-}
-
 impl Tuple {
     pub fn new(x: f64, y: f64, z: f64, w: f64) -> Self {
         Tuple { x, y, z, w }
@@ -40,6 +31,19 @@ impl Tuple {
 
     pub fn is_vector(&self) -> bool {
         float_near_equal(self.w, 0.0)
+    }
+
+    pub fn magnitude(&self) -> f64 {
+        ((self.x * self.x) + (self.y * self.y) + (self.z * self.z) + (self.w * self.w)).sqrt()
+    }
+}
+
+impl PartialEq for Tuple {
+    fn eq(&self, other: &Self) -> bool {
+        float_near_equal(self.x, other.x)
+            && float_near_equal(self.y, other.y)
+            && float_near_equal(self.z, other.z)
+            && float_near_equal(self.w, other.w)
     }
 }
 
@@ -223,5 +227,23 @@ mod tests {
 
         a /= 2.0;
         assert_eq!(a, Tuple::new(0.5, -1.0, 1.5, -2.0));
+    }
+
+    #[test]
+    fn magnitude() {
+        let mut v = Tuple::vector(1.0, 0.0, 0.0);
+        assert!(float_near_equal(v.magnitude(), 1.0));
+
+        v = Tuple::vector(0.0, 1.0, 0.0);
+        assert!(float_near_equal(v.magnitude(), 1.0));
+
+        v = Tuple::vector(0.0, 0.0, 1.0);
+        assert!(float_near_equal(v.magnitude(), 1.0));
+
+        v = Tuple::vector(1.0, 2.0, 3.0);
+        assert!(float_near_equal(v.magnitude(), (14.0_f64).sqrt()));
+
+        v = Tuple::vector(-1.0, -2.0, -3.0);
+        assert!(float_near_equal(v.magnitude(), (14.0_f64).sqrt()));
     }
 }
