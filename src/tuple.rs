@@ -45,7 +45,7 @@ impl Tuple {
 
 impl ops::Add for Tuple {
     type Output = Self;
-    fn add(self, other: Self) -> Self {
+    fn add(self, other: Self) -> Self::Output {
         Self {
             x: self.x + other.x,
             y: self.y + other.y,
@@ -63,7 +63,7 @@ impl ops::AddAssign for Tuple {
 
 impl ops::Sub for Tuple {
     type Output = Self;
-    fn sub(self, other: Self) -> Self {
+    fn sub(self, other: Self) -> Self::Output {
         Self {
             x: self.x - other.x,
             y: self.y - other.y,
@@ -81,13 +81,49 @@ impl ops::SubAssign for Tuple {
 
 impl ops::Neg for Tuple {
     type Output = Self;
-    fn neg(self) -> Self {
+    fn neg(self) -> Self::Output {
         Self {
             x: -(self.x),
             y: -(self.y),
             z: -(self.z),
             w: -(self.w),
         }
+    }
+}
+
+impl ops::Mul<f64> for Tuple {
+    type Output = Self;
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+            w: self.w * rhs,
+        }
+    }
+}
+
+impl ops::MulAssign<f64> for Tuple {
+    fn mul_assign(&mut self, rhs: f64) {
+        *self = *self * rhs;
+    }
+}
+
+impl ops::Div<f64> for Tuple {
+    type Output = Self;
+    fn div(self, rhs: f64) -> Self::Output {
+        Self {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
+            w: self.w / rhs,
+        }
+    }
+}
+
+impl ops::DivAssign<f64> for Tuple {
+    fn div_assign(&mut self, rhs: f64) {
+        *self = *self / rhs;
     }
 }
 
@@ -165,5 +201,27 @@ mod tests {
     fn negation() {
         let a = Tuple::new(1.0, -2.0, 3.0, -4.0);
         assert_eq!(-a, Tuple::new(-1.0, 2.0, -3.0, 4.0));
+    }
+
+    #[test]
+    fn scalar_mult() {
+        let mut a = Tuple::new(1.0, -2.0, 3.0, -4.0);
+        assert_eq!(a * 3.5, Tuple::new(3.5, -7.0, 10.5, -14.0));
+
+        a *= 3.5;
+        assert_eq!(a, Tuple::new(3.5, -7.0, 10.5, -14.0));
+
+        // mul by fraction
+        a = Tuple::new(1.0, -2.0, 3.0, -4.0);
+        assert_eq!(a * 0.5, Tuple::new(0.5, -1.0, 1.5, -2.0));
+    }
+
+    #[test]
+    fn scalar_div() {
+        let mut a = Tuple::new(1.0, -2.0, 3.0, -4.0);
+        assert_eq!(a / 2.0, Tuple::new(0.5, -1.0, 1.5, -2.0));
+
+        a /= 2.0;
+        assert_eq!(a, Tuple::new(0.5, -1.0, 1.5, -2.0));
     }
 }
