@@ -4,7 +4,7 @@ use ray_tracer::tuple::*;
 
 #[test]
 fn init() {
-    let m = Matrix::new(&vec![
+    let m = Matrix::new(vec![
         vec![1.0, 2.0, 3.0, 4.0],
         vec![5.5, 6.5, 7.5, 8.5],
         vec![9.0, 10.0, 11.0, 12.0],
@@ -18,13 +18,13 @@ fn init() {
     assert!(float_near_equal(13.5, m.get(3, 0)));
     assert!(float_near_equal(15.5, m.get(3, 2)));
 
-    let m2 = Matrix::new(&vec![vec![-3.0, 5.0], vec![1.0, -2.0]]);
+    let m2 = Matrix::new(vec![vec![-3.0, 5.0], vec![1.0, -2.0]]);
     assert!(float_near_equal(-3.0, m2.get(0, 0)));
     assert!(float_near_equal(5.0, m2.get(0, 1)));
     assert!(float_near_equal(1.0, m2.get(1, 0)));
     assert!(float_near_equal(-2.0, m2.get(1, 1)));
 
-    let m3 = Matrix::new(&vec![
+    let m3 = Matrix::new(vec![
         vec![-3.0, 5.0, 0.0],
         vec![1.0, -2.0, -7.0],
         vec![0.0, 1.0, 1.0],
@@ -37,13 +37,13 @@ fn init() {
 
 #[test]
 fn equality() {
-    let m1 = Matrix::new(&vec![
+    let m1 = Matrix::new(vec![
         vec![1.0, 2.0, 3.0, 4.0],
         vec![5.5, 6.5, 7.5, 8.5],
         vec![9.0, 10.0, 11.0, 12.0],
         vec![13.5, 14.5, 15.5, 16.5],
     ]);
-    let m2 = Matrix::new(&vec![
+    let m2 = Matrix::new(vec![
         vec![1.0, 2.0, 3.0, 4.0],
         vec![5.5, 6.5, 7.5, 8.5],
         vec![9.0, 10.0, 11.0, 12.0],
@@ -52,7 +52,7 @@ fn equality() {
 
     assert_eq!(m1, m2);
 
-    let m3 = Matrix::new(&vec![
+    let m3 = Matrix::new(vec![
         vec![1.0, 2.0, 3.0, 4.0],
         vec![5.5, 6.5, 7.5, 8.5],
         vec![9.0, 9.0, 11.0008, 12.0],
@@ -63,21 +63,21 @@ fn equality() {
 
 #[test]
 fn multiply4x4() {
-    let m1 = Matrix::new(&vec![
+    let m1 = Matrix::new(vec![
         vec![1.0, 2.0, 3.0, 4.0],
         vec![5.0, 6.0, 7.0, 8.0],
         vec![9.0, 8.0, 7.0, 6.0],
         vec![5.0, 4.0, 3.0, 2.0],
     ]);
 
-    let m2 = Matrix::new(&vec![
+    let m2 = Matrix::new(vec![
         vec![-2.0, 1.0, 2.0, 3.0],
         vec![3.0, 2.0, 1.0, -1.0],
         vec![4.0, 3.0, 6.0, 5.0],
         vec![1.0, 2.0, 7.0, 8.0],
     ]);
 
-    let expected = Matrix::new(&vec![
+    let expected = Matrix::new(vec![
         vec![20.0, 22.0, 50.0, 48.0],
         vec![44.0, 54.0, 114.0, 108.0],
         vec![40.0, 58.0, 110.0, 102.0],
@@ -89,7 +89,7 @@ fn multiply4x4() {
 
 #[test]
 fn multiply_tuple() {
-    let m = Matrix::new(&vec![
+    let m = Matrix::new(vec![
         vec![1.0, 2.0, 3.0, 4.0],
         vec![2.0, 4.0, 4.0, 2.0],
         vec![8.0, 6.0, 4.0, 1.0],
@@ -103,14 +103,14 @@ fn multiply_tuple() {
 
 #[test]
 fn multiply_by_identity() {
-    let m = Matrix::new(&vec![
+    let m = Matrix::new(vec![
         vec![1.0, 2.0, 3.0, 4.0],
         vec![2.0, 4.0, 4.0, 2.0],
         vec![8.0, 6.0, 4.0, 1.0],
         vec![0.0, 0.0, 0.0, 1.0],
     ]);
 
-    let expected = Matrix::new(&vec![
+    let expected = Matrix::new(vec![
         vec![1.0, 2.0, 3.0, 4.0],
         vec![2.0, 4.0, 4.0, 2.0],
         vec![8.0, 6.0, 4.0, 1.0],
@@ -122,14 +122,14 @@ fn multiply_by_identity() {
 
 #[test]
 fn transpose() {
-    let m = Matrix::new(&vec![
+    let m = Matrix::new(vec![
         vec![0.0, 9.0, 3.0, 0.0],
         vec![9.0, 8.0, 0.0, 8.0],
         vec![1.0, 8.0, 5.0, 3.0],
         vec![0.0, 0.0, 5.0, 8.0],
     ]);
 
-    let expected = Matrix::new(&vec![
+    let expected = Matrix::new(vec![
         vec![0.0, 9.0, 1.0, 0.0],
         vec![9.0, 8.0, 8.0, 0.0],
         vec![3.0, 0.0, 5.0, 5.0],
@@ -146,13 +146,13 @@ fn transpose() {
 
 #[test]
 fn determinant2x2() {
-    let m = Matrix::new(&vec![vec![1.0, 5.0], vec![-3.0, 2.0]]);
+    let m = Matrix::new(vec![vec![1.0, 5.0], vec![-3.0, 2.0]]);
     assert!(float_near_equal(m.determinant(), 17.0));
 }
 
 #[test]
 fn determinant3x3() {
-    let m = Matrix::new(&vec![
+    let m = Matrix::new(vec![
         vec![1.0, 2.0, 6.0],
         vec![-5.0, 8.0, -4.0],
         vec![2.0, 6.0, 4.0],
@@ -165,7 +165,7 @@ fn determinant3x3() {
 
 #[test]
 fn determinant4x4() {
-    let m = Matrix::new(&vec![
+    let m = Matrix::new(vec![
         vec![-2.0, -8.0, 3.0, 5.0],
         vec![-3.0, 1.0, 7.0, 3.0],
         vec![1.0, 2.0, -9.0, 6.0],
@@ -181,7 +181,7 @@ fn determinant4x4() {
 
 #[test]
 fn submatrix() {
-    let m3 = Matrix::new(&vec![
+    let m3 = Matrix::new(vec![
         vec![1.0, 5.0, 0.0],
         vec![-3.0, 2.0, 7.0],
         vec![0.0, 6.0, -3.0],
@@ -189,10 +189,10 @@ fn submatrix() {
 
     assert_eq!(
         m3.submatrix(0, 2),
-        Matrix::new(&vec![vec![-3.0, 2.0], vec![0.0, 6.0]])
+        Matrix::new(vec![vec![-3.0, 2.0], vec![0.0, 6.0]])
     );
 
-    let m4 = Matrix::new(&vec![
+    let m4 = Matrix::new(vec![
         vec![-6.0, 1.0, 1.0, 6.0],
         vec![-8.0, 5.0, 8.0, 6.0],
         vec![-1.0, 0.0, 8.0, 2.0],
@@ -201,7 +201,7 @@ fn submatrix() {
 
     assert_eq!(
         m4.submatrix(2, 1),
-        Matrix::new(&vec![
+        Matrix::new(vec![
             vec![-6.0, 1.0, 6.0],
             vec![-8.0, 8.0, 6.0],
             vec![-7.0, -1.0, 1.0]
@@ -211,7 +211,7 @@ fn submatrix() {
 
 #[test]
 fn minor() {
-    let m = Matrix::new(&vec![
+    let m = Matrix::new(vec![
         vec![3.0, 5.0, 0.0],
         vec![2.0, -1.0, -7.0],
         vec![6.0, -1.0, 5.0],
@@ -224,7 +224,7 @@ fn minor() {
 
 #[test]
 fn cofactor() {
-    let m = Matrix::new(&vec![
+    let m = Matrix::new(vec![
         vec![3.0, 5.0, 0.0],
         vec![2.0, -1.0, -7.0],
         vec![6.0, -1.0, 5.0],
@@ -238,7 +238,7 @@ fn cofactor() {
 
 #[test]
 fn is_invertible() {
-    let m = Matrix::new(&vec![
+    let m = Matrix::new(vec![
         vec![6.0, 4.0, 4.0, 4.0],
         vec![5.0, 5.0, 7.0, 6.0],
         vec![4.0, -9.0, 3.0, -7.0],
@@ -248,7 +248,7 @@ fn is_invertible() {
     assert!(float_near_equal(m.determinant(), -2120.0));
     assert!(m.is_invertible());
 
-    let m2 = Matrix::new(&vec![
+    let m2 = Matrix::new(vec![
         vec![-4.0, 2.0, -2.0, -3.0],
         vec![9.0, 6.0, 2.0, 6.0],
         vec![0.0, -5.0, 1.0, -5.0],
@@ -261,7 +261,7 @@ fn is_invertible() {
 
 #[test]
 fn inverse() {
-    let a = Matrix::new(&vec![
+    let a = Matrix::new(vec![
         vec![-5.0, 2.0, 6.0, -8.0],
         vec![1.0, -5.0, 1.0, 8.0],
         vec![7.0, 7.0, -6.0, -7.0],
@@ -275,7 +275,7 @@ fn inverse() {
     assert!(float_near_equal(a.cofactor(3, 2), 105.0));
     assert!(float_near_equal(b.get(2, 3), 105.0 / 532.0));
 
-    let expected = Matrix::new(&vec![
+    let expected = Matrix::new(vec![
         vec![
             0.21804511278195488,
             0.45112781954887216,
@@ -304,14 +304,14 @@ fn inverse() {
 
     assert_eq!(b, expected);
 
-    let a2 = Matrix::new(&vec![
+    let a2 = Matrix::new(vec![
         vec![8.0, -5.0, 9.0, 2.0],
         vec![7.0, 5.0, 6.0, 1.0],
         vec![-6.0, 0.0, 9.0, 6.0],
         vec![-3.0, 0.0, -9.0, -4.0],
     ]);
 
-    let expected2 = Matrix::new(&vec![
+    let expected2 = Matrix::new(vec![
         vec![
             -0.15384615384615385,
             -0.15384615384615385,
@@ -340,14 +340,14 @@ fn inverse() {
 
     assert_eq!(a2.inverse(), expected2);
 
-    let a3 = Matrix::new(&vec![
+    let a3 = Matrix::new(vec![
         vec![9.0, 3.0, 0.0, 9.0],
         vec![-5.0, -2.0, -6.0, -3.0],
         vec![-4.0, 9.0, 6.0, 4.0],
         vec![-7.0, 6.0, 6.0, 2.0],
     ]);
 
-    let expected3 = Matrix::new(&vec![
+    let expected3 = Matrix::new(vec![
         vec![
             -0.040740740740740744,
             -0.07777777777777778,
@@ -379,20 +379,20 @@ fn inverse() {
 
 #[test]
 fn multiply_by_inverse() {
-    let a = Matrix::new(&vec![
+    let a = Matrix::new(vec![
         vec![3.0, -9.0, 7.0, 3.0],
         vec![3.0, -8.0, 2.0, -9.0],
         vec![-4.0, 4.0, 4.0, 1.0],
         vec![-6.0, 5.0, -1.0, 1.0],
     ]);
-    let b = Matrix::new(&vec![
+    let b = Matrix::new(vec![
         vec![8.0, 2.0, 2.0, 2.0],
         vec![3.0, -1.0, 7.0, 0.0],
         vec![7.0, 0.0, 5.0, 4.0],
         vec![6.0, -2.0, 0.0, 5.0],
     ]);
 
-    let expected = Matrix::new(&vec![
+    let expected = Matrix::new(vec![
         vec![3.0, -9.0, 7.0, 3.000000000000001],
         vec![
             2.999999999999999,
