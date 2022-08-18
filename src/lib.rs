@@ -1,5 +1,6 @@
 pub mod canvas;
 pub mod color;
+pub mod matrix;
 pub mod ppm_printer;
 pub mod tuple;
 
