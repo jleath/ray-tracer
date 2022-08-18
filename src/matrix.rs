@@ -17,6 +17,10 @@ impl Matrix {
         self.buffer[row][col]
     }
 
+    pub fn set(&mut self, row: usize, col: usize, val: f64) {
+        self.buffer[row][col] = val;
+    }
+
     pub fn identity_matrix() -> Matrix {
         Matrix::new(&vec![
             vec![1.0, 0.0, 0.0, 0.0],
