@@ -5,6 +5,10 @@ use std::io::Write;
 pub struct PpmPrinter;
 
 impl PpmPrinter {
+    /// # Errors
+    ///
+    /// Will return an error if the file indicated by `filepath` cannot be opened or
+    /// written to.
     pub fn dump_to_file(canvas: &Canvas, filepath: &str) -> Result<(), Box<dyn std::error::Error>> {
         let header = PpmPrinter::header(canvas);
         let data = PpmPrinter::pixel_data(canvas);
@@ -59,7 +63,7 @@ impl PpmPrinter {
             }
         }
         if !pixel_string.ends_with('\n') {
-            pixel_string += "\n"
+            pixel_string += "\n";
         }
         pixel_string
     }

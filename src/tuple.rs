@@ -11,30 +11,37 @@ pub struct Tuple {
 }
 
 impl Tuple {
+    #[must_use]
     pub fn new(x: f64, y: f64, z: f64, w: f64) -> Self {
         Tuple { x, y, z, w }
     }
 
+    #[must_use]
     pub fn point(x: f64, y: f64, z: f64) -> Self {
         Tuple::new(x, y, z, 1.0)
     }
 
+    #[must_use]
     pub fn vector(x: f64, y: f64, z: f64) -> Self {
         Tuple::new(x, y, z, 0.0)
     }
 
+    #[must_use]
     pub fn is_point(&self) -> bool {
         float_near_equal(self.w, 1.0)
     }
 
+    #[must_use]
     pub fn is_vector(&self) -> bool {
         float_near_equal(self.w, 0.0)
     }
 
+    #[must_use]
     pub fn magnitude(&self) -> f64 {
         ((self.x * self.x) + (self.y * self.y) + (self.z * self.z) + (self.w * self.w)).sqrt()
     }
 
+    #[must_use]
     pub fn normalize(&self) -> Self {
         let mag = self.magnitude();
         Self {
@@ -45,10 +52,12 @@ impl Tuple {
         }
     }
 
+    #[must_use]
     pub fn dot_product(&self, other: &Self) -> f64 {
         self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
     }
 
+    #[must_use]
     pub fn cross_product(&self, other: &Self) -> Self {
         Tuple::vector(
             self.y * other.z - self.z * other.y,

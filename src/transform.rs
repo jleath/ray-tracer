@@ -1,5 +1,5 @@
-use crate::matrix::*;
-use crate::tuple::*;
+use crate::matrix::Matrix;
+use crate::tuple::Tuple;
 
 pub struct Transform {
     matrix: Matrix,
@@ -12,15 +12,19 @@ impl Default for Transform {
 }
 
 impl Transform {
+    #[must_use]
     pub fn new() -> Self {
         Transform {
             matrix: Matrix::identity_matrix(),
         }
     }
 
+    #[must_use]
     pub fn transform(&self, t: &Tuple) -> Tuple {
         self.matrix.tuple_multiply(t)
     }
+
+    #[must_use]
     pub fn translate(mut self, x: f64, y: f64, z: f64) -> Self {
         let mut matrix = Matrix::identity_matrix();
         matrix.set(0, 3, x);
@@ -30,6 +34,7 @@ impl Transform {
         self
     }
 
+    #[must_use]
     pub fn scale(mut self, x: f64, y: f64, z: f64) -> Self {
         let mut matrix = Matrix::identity_matrix();
         matrix.set(0, 0, x);
@@ -39,6 +44,7 @@ impl Transform {
         self
     }
 
+    #[must_use]
     pub fn rotate_x(mut self, r: f64) -> Self {
         let mut matrix = Matrix::identity_matrix();
         matrix.set(1, 1, r.cos());
@@ -49,6 +55,7 @@ impl Transform {
         self
     }
 
+    #[must_use]
     pub fn rotate_y(mut self, r: f64) -> Self {
         let mut matrix = Matrix::identity_matrix();
         matrix.set(0, 0, r.cos());
@@ -59,6 +66,7 @@ impl Transform {
         self
     }
 
+    #[must_use]
     pub fn rotate_z(mut self, r: f64) -> Self {
         let mut matrix = Matrix::identity_matrix();
         matrix.set(0, 0, r.cos());
@@ -69,6 +77,7 @@ impl Transform {
         self
     }
 
+    #[must_use]
     pub fn shear(mut self, xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Self {
         let mut matrix = Matrix::identity_matrix();
         matrix.set(0, 1, xy);
@@ -81,6 +90,7 @@ impl Transform {
         self
     }
 
+    #[must_use]
     pub fn inverse(mut self) -> Self {
         self.matrix = self.matrix.inverse();
         self

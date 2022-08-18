@@ -1,5 +1,5 @@
 use crate::float_near_equal;
-use crate::tuple::*;
+use crate::tuple::Tuple;
 
 #[derive(Debug, Clone)]
 pub struct Matrix {
@@ -7,12 +7,12 @@ pub struct Matrix {
 }
 
 impl Matrix {
-    pub fn new(data: &Vec<Vec<f64>>) -> Self {
-        Matrix {
-            buffer: data.to_owned(),
-        }
+    #[must_use]
+    pub fn new(data: Vec<Vec<f64>>) -> Self {
+        Matrix { buffer: data }
     }
 
+    #[must_use]
     pub fn get(&self, row: usize, col: usize) -> f64 {
         self.buffer[row][col]
     }
@@ -21,8 +21,9 @@ impl Matrix {
         self.buffer[row][col] = val;
     }
 
+    #[must_use]
     pub fn identity_matrix() -> Matrix {
-        Matrix::new(&vec![
+        Matrix::new(vec![
             vec![1.0, 0.0, 0.0, 0.0],
             vec![0.0, 1.0, 0.0, 0.0],
             vec![0.0, 0.0, 1.0, 0.0],
@@ -30,6 +31,7 @@ impl Matrix {
         ])
     }
 
+    #[must_use]
     pub fn transpose(&self) -> Matrix {
         let mut result = vec![];
         for y in 0..self.buffer.len() {
@@ -39,9 +41,10 @@ impl Matrix {
             }
         }
 
-        Matrix::new(&result)
+        Matrix::new(result)
     }
 
+    #[must_use]
     pub fn determinant(&self) -> f64 {
         if self.buffer.len() == 2 {
             (self.buffer[0][0] * self.buffer[1][1]) - (self.buffer[0][1] * self.buffer[1][0])
@@ -55,6 +58,7 @@ impl Matrix {
         }
     }
 
+    #[must_use]
     pub fn submatrix(&self, row: usize, col: usize) -> Matrix {
         let mut result = vec![];
         for y in 0..self.buffer.len() {
@@ -70,13 +74,15 @@ impl Matrix {
             }
             result.push(result_row);
         }
-        Matrix::new(&result)
+        Matrix::new(result)
     }
 
+    #[must_use]
     pub fn minor(&self, row: usize, col: usize) -> f64 {
         self.submatrix(row, col).determinant()
     }
 
+    #[must_use]
     pub fn cofactor(&self, row: usize, col: usize) -> f64 {
         let m = self.minor(row, col);
         if (row + col) % 2 == 0 {
@@ -86,24 +92,30 @@ impl Matrix {
         }
     }
 
+    #[must_use]
     pub fn is_invertible(&self) -> bool {
         self.determinant() != 0.0
     }
 
+    #[must_use]
+    /// # Panics
+    ///
+    /// Will panic if self is not invertible
     pub fn inverse(&self) -> Matrix {
         assert!(self.is_invertible());
 
         let mut result = self.buffer.clone();
 
-        for row in 0..self.buffer.len() {
-            for col in 0..self.buffer[row].len() {
-                let c = self.cofactor(row, col);
-                result[col][row] = c / self.determinant();
+        for (y, row) in self.buffer.iter().enumerate() {
+            for (x, _) in row.iter().enumerate() {
+                let c = self.cofactor(y, x);
+                result[x][y] = c / self.determinant();
             }
         }
-        Matrix::new(&result)
+        Matrix::new(result)
     }
 
+    #[must_use]
     pub fn matrix_multiply(&self, rhs: &Matrix) -> Matrix {
         let mut result = vec![];
         let width = self.buffer[0].len();
@@ -120,9 +132,10 @@ impl Matrix {
             }
             result.push(result_row);
         }
-        Matrix::new(&result)
+        Matrix::new(result)
     }
 
+    #[must_use]
     pub fn tuple_multiply(&self, rhs: &Tuple) -> Tuple {
         let x = self.buffer[0][0] * rhs.x
             + self.buffer[0][1] * rhs.y
