@@ -1,9 +1,17 @@
 use crate::canvas::Canvas;
-use crate::color::Color;
+use std::fs::File;
+use std::io::Write;
 
 pub struct PpmPrinter;
 
 impl PpmPrinter {
+    pub fn dump_to_file(canvas: &Canvas, filepath: &str) -> Result<(), Box<dyn std::error::Error>> {
+        let header = PpmPrinter::header(canvas);
+        let data = PpmPrinter::pixel_data(canvas);
+        let mut file = File::create(filepath)?;
+        file.write_all((header + "\n" + data.as_str()).as_bytes())?;
+        Ok(())
+    }
     fn header(canvas: &Canvas) -> String {
         format!("P3\n{} {}\n255", canvas.width(), canvas.height())
     }
@@ -60,6 +68,7 @@ impl PpmPrinter {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::color::Color;
 
     #[test]
     fn test_header() {
