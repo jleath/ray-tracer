@@ -1,4 +1,5 @@
 use crate::intersection::Intersection;
+use crate::material::Material;
 use crate::ray::Ray;
 use crate::transform::Transform;
 use crate::tuple::Tuple;
@@ -8,15 +9,12 @@ pub struct Sphere {
     center: Tuple,
     radius: f64,
     pub transform: Transform,
+    pub material: Material,
 }
 
 impl Default for Sphere {
     fn default() -> Self {
-        Sphere {
-            center: Tuple::point(0.0, 0.0, 0.0),
-            radius: 1.0,
-            transform: Transform::new(),
-        }
+        Self::new()
     }
 }
 
@@ -27,6 +25,7 @@ impl Sphere {
             center: Tuple::point(0.0, 0.0, 0.0),
             radius: 1.0,
             transform: Transform::new(),
+            material: Material::new(),
         }
     }
 
@@ -54,5 +53,16 @@ impl Sphere {
         } else {
             vec![t1, t2]
         }
+    }
+
+    #[must_use]
+    pub fn normal_at(&self, point: Tuple) -> Tuple {
+        let mut t = self.transform.clone().inverse();
+        let object_point = t.transform(&point);
+        let object_normal = object_point - self.center;
+        t = t.transpose();
+        let mut world_normal = t.transform(&object_normal);
+        world_normal.w = 0.0;
+        world_normal.normalize()
     }
 }
