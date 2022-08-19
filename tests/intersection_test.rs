@@ -76,7 +76,7 @@ fn hit_all_positive() {
     let s = Sphere::new();
     let i1 = Intersection::new(1.0, &s);
     let i2 = Intersection::new(2.0, &s);
-    let list = [&i1, &i2];
+    let list = vec![i1.clone(), i2];
     let mut xs = IntersectionList::new(&list);
     let i = xs.hit().unwrap();
     assert_eq!(i, &i1);
@@ -87,7 +87,7 @@ fn hit_some_negative() {
     let s = Sphere::new();
     let i1 = Intersection::new(-1.0, &s);
     let i2 = Intersection::new(1.0, &s);
-    let list = [&i1, &i2];
+    let list = vec![i1, i2.clone()];
     let mut xs = IntersectionList::new(&list);
     let i = xs.hit().unwrap();
     assert_eq!(i, &i2);
@@ -98,7 +98,7 @@ fn hit_all_negative() {
     let s = Sphere::new();
     let i1 = Intersection::new(-1.0, &s);
     let i2 = Intersection::new(-2.0, &s);
-    let list = [&i1, &i2];
+    let list = vec![i1, i2];
     let mut xs = IntersectionList::new(&list);
     let i = xs.hit();
     assert_eq!(i, None);
@@ -111,7 +111,7 @@ fn hit_gets_first() {
     let i2 = Intersection::new(7.0, &s);
     let i3 = Intersection::new(-3.0, &s);
     let i4 = Intersection::new(2.0, &s);
-    let list = [&i1, &i2, &i3, &i4];
+    let list = vec![i1, i2, i3, i4.clone()];
     let mut xs = IntersectionList::new(&list);
     let i = xs.hit().unwrap();
     assert_eq!(i, &i4);

@@ -15,17 +15,18 @@ impl<'a> Intersection<'a> {
 
 #[allow(clippy::module_name_repetitions)]
 pub struct IntersectionList<'a> {
-    ix: Vec<&'a Intersection<'a>>,
+    ix: Vec<Intersection<'a>>,
     sorted: bool,
 }
 
 impl<'a> IntersectionList<'a> {
     #[must_use]
+    #[allow(clippy::ptr_arg)]
     /// # Panics
     ///
     /// May panic if the `Vec` passed into `new` contains `NaN`.
-    pub fn new(ix: &'a [&Intersection]) -> Self {
-        let mut list = ix.to_owned();
+    pub fn new(ix: &Vec<Intersection<'a>>) -> Self {
+        let mut list = ix.clone();
         list.sort_unstable_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
         IntersectionList {
             ix: list,
