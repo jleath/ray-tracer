@@ -1,7 +1,8 @@
 use std::f64::consts::PI;
 
-use ray_tracer::transform::*;
-use ray_tracer::tuple::*;
+use ray_tracer::ray::Ray;
+use ray_tracer::transform::Transform;
+use ray_tracer::tuple::Tuple;
 
 #[test]
 fn multiply_by_translation() {
@@ -175,4 +176,16 @@ fn builder() {
             .transform(&p),
         Tuple::point(15.0, 0.0, 7.0)
     );
+}
+
+#[test]
+fn transform_ray() {
+    let r = Ray::new(Tuple::point(1.0, 2.0, 3.0), Tuple::vector(0.0, 1.0, 0.0));
+    let r2 = Transform::new().translate(3.0, 4.0, 5.0).transform_ray(&r);
+    assert_eq!(r2.origin, Tuple::point(4.0, 6.0, 8.0));
+    assert_eq!(r2.direction, Tuple::vector(0.0, 1.0, 0.0));
+
+    let r3 = Transform::new().scale(2.0, 3.0, 4.0).transform_ray(&r);
+    assert_eq!(r3.origin, Tuple::point(2.0, 6.0, 12.0));
+    assert_eq!(r3.direction, Tuple::vector(0.0, 3.0, 0.0));
 }
