@@ -105,4 +105,10 @@ impl Transform {
         self.matrix = self.matrix.inverse();
         self
     }
+
+    #[must_use]
+    pub fn transpose(mut self) -> Self {
+        self.matrix = self.matrix.transpose();
+        self
+    }
 }
