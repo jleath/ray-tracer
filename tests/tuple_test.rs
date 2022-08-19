@@ -145,3 +145,19 @@ fn cross_product() {
     assert_eq!(a.cross_product(&b), Tuple::vector(-1.0, 2.0, -1.0));
     assert_eq!(b.cross_product(&a), Tuple::vector(1.0, -2.0, 1.0));
 }
+
+#[test]
+fn reflection() {
+    let v = Tuple::vector(1.0, -1.0, 0.0);
+    let n = Tuple::vector(0.0, 1.0, 0.0);
+    let r = v.reflect(&n);
+    assert_eq!(r, Tuple::vector(1.0, 1.0, 0.0));
+
+    let v2 = Tuple::vector(0.0, -1.0, 0.0);
+    let n2 = Tuple::vector(2_f64.sqrt() / 2.0, 2_f64.sqrt() / 2.0, 0.0);
+    let r2 = v2.reflect(&n2);
+    assert_eq!(
+        r2,
+        Tuple::vector(1.0000000000000002, 2.220446049250313e-16, 0.0)
+    );
+}

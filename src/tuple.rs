@@ -65,6 +65,14 @@ impl Tuple {
             self.x * other.y - self.y * other.x,
         )
     }
+
+    #[must_use]
+    pub fn reflect(&self, normal: &Tuple) -> Self {
+        let n = *self;
+        let normal = *normal;
+        let dot = self.dot_product(&normal) * 2.0;
+        n - (normal * dot)
+    }
 }
 
 impl PartialEq for Tuple {
