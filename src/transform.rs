@@ -1,6 +1,8 @@
 use crate::matrix::Matrix;
+use crate::ray::Ray;
 use crate::tuple::Tuple;
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct Transform {
     matrix: Matrix,
 }
@@ -22,6 +24,14 @@ impl Transform {
     #[must_use]
     pub fn transform(&self, t: &Tuple) -> Tuple {
         self.matrix.tuple_multiply(t)
+    }
+
+    #[must_use]
+    pub fn transform_ray(&self, r: &Ray) -> Ray {
+        Ray {
+            origin: self.transform(&r.origin),
+            direction: self.transform(&r.direction),
+        }
     }
 
     #[must_use]
