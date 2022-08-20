@@ -82,7 +82,7 @@ impl World {
         new_light: &PointLight,
     ) -> Result<(), InvalidWorldAccess> {
         if id < self.lights.len() {
-            self.lights[id] = new_light.clone();
+            self.lights[id] = *new_light;
             Ok(())
         } else {
             Err(InvalidWorldAccess)
