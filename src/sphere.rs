@@ -1,3 +1,4 @@
+use crate::color::Color;
 use crate::intersection::Intersection;
 use crate::material::Material;
 use crate::ray::Ray;
@@ -27,6 +28,42 @@ impl Sphere {
             transform: Transform::new(),
             material: Material::new(),
         }
+    }
+
+    pub fn set_color(&mut self, c: Color) {
+        self.material.color = c;
+    }
+
+    pub fn set_specular(&mut self, c: f64) {
+        self.material.specular = c;
+    }
+
+    pub fn set_diffuse(&mut self, c: f64) {
+        self.material.diffuse = c;
+    }
+
+    pub fn scale(&mut self, x: f64, y: f64, z: f64) {
+        self.transform = self.transform.clone().scale(x, y, z);
+    }
+
+    pub fn translate(&mut self, x: f64, y: f64, z: f64) {
+        self.transform = self.transform.clone().translate(x, y, z);
+    }
+
+    pub fn rotate_x(&mut self, r: f64) {
+        self.transform = self.transform.clone().rotate_x(r);
+    }
+
+    pub fn rotate_z(&mut self, r: f64) {
+        self.transform = self.transform.clone().rotate_z(r);
+    }
+
+    pub fn rotate_y(&mut self, r: f64) {
+        self.transform = self.transform.clone().rotate_y(r);
+    }
+
+    pub fn shear(&mut self, xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) {
+        self.transform = self.transform.clone().shear(xy, xz, yx, yz, zx, zy);
     }
 
     #[must_use]
