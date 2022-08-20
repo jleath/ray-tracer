@@ -122,11 +122,15 @@ impl World {
     }
 
     #[must_use]
+    // This does not work very well for multiple light sources. It will render the shadows
+    // appropriately but the shading won't look as realistic as it could. Need to look into
+    // maybe some kind of lighten only color blending instead of just color addition.
     pub fn shade_hit(&self, comps: &Comp) -> Color {
         let material = comps.object.material;
         let mut color = Color::new(0.0, 0.0, 0.0);
         for light in &self.lights {
-            color += material.lighting(light, comps.point, comps.eyev, comps.normalv);
+            let shadowed = self.is_shadowed(comps.over_point, light);
+            color += material.lighting(light, comps.point, comps.eyev, comps.normalv, shadowed);
         }
         color
     }
@@ -140,5 +144,19 @@ impl World {
         } else {
             Color::new(0.0, 0.0, 0.0)
         }
+    }
+
+    #[must_use]
+    pub fn is_shadowed(&self, p: Tuple, light: &PointLight) -> bool {
+        let v = light.position - p;
+        let distance = v.magnitude();
+        let shadow_ray = Ray::new(p, v.normalize());
+        let mut ix = self.intersect(&shadow_ray);
+        if let Some(hit) = ix.hit() {
+            if hit.t < distance {
+                return true;
+            }
+        }
+        false
     }
 }

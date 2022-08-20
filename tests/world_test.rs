@@ -24,7 +24,7 @@ fn default_world() {
     let mut s2 = Sphere::new();
     s2.transform = s2.transform.scale(0.5, 0.5, 0.5);
 
-    let world = World::default_world();
+    let world = World::default();
     assert_eq!(world.get_light(0).unwrap(), &light);
     assert_eq!(world.get_object(0).unwrap(), &s1);
     assert_eq!(world.get_object(1).unwrap(), &s2);
@@ -32,7 +32,7 @@ fn default_world() {
 
 #[test]
 fn world_intersect() {
-    let w = World::default_world();
+    let w = World::default();
     let r = Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
     let xs = w.intersect(&r);
     assert_eq!(xs.len(), 4);
@@ -44,7 +44,7 @@ fn world_intersect() {
 
 #[test]
 fn hit_shading() {
-    let mut w = World::default_world();
+    let mut w = World::default();
     let r = Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
     let s = w.get_object(0).unwrap();
     let i = Intersection::new(4.0, s);
@@ -78,8 +78,25 @@ fn hit_shading() {
 }
 
 #[test]
+fn shade_hit_in_shadow() {
+    let mut w = World::new();
+    let l = PointLight::new(Tuple::point(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
+    w.add_light(l);
+    let s1 = Sphere::new();
+    let mut s2 = Sphere::new();
+    s2.translate(0.0, 0.0, 10.0);
+    w.add_object(s1);
+    let s2_id = w.add_object(s2);
+    let r = Ray::new(Tuple::point(0.0, 0.0, 5.0), Tuple::vector(0.0, 0.0, 1.0));
+    let i = Intersection::new(4.0, w.get_object(s2_id).unwrap());
+    let comps = i.prepare_computation(&r);
+    let c = w.shade_hit(&comps);
+    assert_eq!(c, Color::new(0.1, 0.1, 0.1));
+}
+
+#[test]
 fn ray_miss() {
-    let w = World::default_world();
+    let w = World::default();
     let r = Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 1.0, 0.0));
     let c = w.color_at(&r);
     assert_eq!(c, Color::new(0.0, 0.0, 0.0));
@@ -87,7 +104,7 @@ fn ray_miss() {
 
 #[test]
 fn ray_hit() {
-    let w = World::default_world();
+    let w = World::default();
     let r = Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
     let c = w.color_at(&r);
     assert_eq!(
@@ -102,7 +119,7 @@ fn ray_hit() {
 
 #[test]
 fn intersection_behind_ray() {
-    let mut w = World::default_world();
+    let mut w = World::default();
     let mut outer = w.get_object(0).unwrap().clone();
     outer.material.ambient = 1.0;
     w.set_object(0, &outer).unwrap();
@@ -112,4 +129,20 @@ fn intersection_behind_ray() {
     let r = Ray::new(Tuple::point(0.0, 0.0, 0.75), Tuple::vector(0.0, 0.0, -1.0));
     let c = w.color_at(&r);
     assert_eq!(c, inner.material.color);
+}
+
+#[test]
+fn is_shadowed() {
+    let w = World::default();
+    let mut p = Tuple::point(0.0, 10.0, 0.0);
+    assert!(!w.is_shadowed(p, w.get_light(0).unwrap()));
+
+    p = Tuple::point(10.0, -10.0, 10.0);
+    assert!(w.is_shadowed(p, w.get_light(0).unwrap()));
+
+    p = Tuple::point(-20.0, 20.0, -20.0);
+    assert!(!w.is_shadowed(p, w.get_light(0).unwrap()));
+
+    p = Tuple::point(-2.0, 2.0, -2.0);
+    assert!(!w.is_shadowed(p, w.get_light(0).unwrap()));
 }

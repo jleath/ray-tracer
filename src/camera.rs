@@ -3,6 +3,7 @@ use crate::ray::Ray;
 use crate::transform::Transform;
 use crate::tuple::Tuple;
 use crate::world::World;
+use std::io::{stdout, Write};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Camera {
@@ -55,19 +56,35 @@ impl Camera {
         Ray::new(origin, direction)
     }
 
+    /// # Panics
+    ///
+    /// Will panic if writing to stdout fails
     #[allow(clippy::cast_possible_truncation)]
     #[allow(clippy::cast_sign_loss)]
     #[allow(clippy::cast_precision_loss)]
     #[must_use]
     pub fn render(&self, world: &World) -> Canvas {
+        let num_pixels = (self.hsize * self.vsize) as usize;
+        let mut pixels_colored: usize = 0;
+        let mut progress_string = String::new();
         let mut image = Canvas::new(self.hsize as usize, self.vsize as usize);
+        println!("generating data for {} pixels", num_pixels);
         for y in 0..self.vsize as usize {
             for x in 0..self.hsize as usize {
                 let r = self.ray_for_pixel(x as f64, y as f64);
                 let color = world.color_at(&r);
+                pixels_colored += 1;
+                let percent_done = (pixels_colored * 100 / num_pixels * 100) / 100;
+                while percent_done / 2 > progress_string.len() {
+                    progress_string += "=";
+                    print!("\r[{}>] {}%", progress_string, percent_done);
+                    stdout().flush().unwrap();
+                }
+
                 image.write_pixel(x, y, color);
             }
         }
+        println!();
         image
     }
 }

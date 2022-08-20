@@ -1,6 +1,7 @@
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::tuple::Tuple;
+use crate::EPSILON;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Intersection<'a> {
@@ -14,6 +15,7 @@ pub struct Comp<'a> {
     pub eyev: Tuple,
     pub normalv: Tuple,
     pub inside: bool,
+    pub over_point: Tuple,
 }
 
 impl<'a> Intersection<'a> {
@@ -34,12 +36,14 @@ impl<'a> Intersection<'a> {
             inside = true;
             normalv = -normalv;
         }
+        let over_point = point + normalv * EPSILON;
         Comp {
             object,
             point,
             eyev,
             normalv,
             inside,
+            over_point,
         }
     }
 }

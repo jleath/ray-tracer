@@ -14,7 +14,9 @@ pub mod transform;
 pub mod tuple;
 pub mod world;
 
+pub const EPSILON: f64 = 0.00001;
+
 #[must_use]
 pub fn float_near_equal(a: f64, b: f64) -> bool {
-    (a - b).abs() < f64::EPSILON
+    (a - b).abs() < EPSILON
 }

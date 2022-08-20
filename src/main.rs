@@ -9,7 +9,6 @@ use ray_tracer::world::World;
 use std::f64::consts::PI;
 
 fn main() {
-    // create floor object
     let mut floor = Sphere::new();
     floor.scale(10.0, 0.01, 10.0);
     floor.set_color(Color::new(1.0, 0.9, 0.9));
@@ -30,7 +29,6 @@ fn main() {
     right_wall.material = floor.material;
 
     let mut middle = Sphere::new();
-    middle.scale(0.5, 0.5, 0.5);
     middle.translate(-0.5, 1.0, 0.5);
     middle.set_color(Color::new(0.1, 1.0, 0.5));
     middle.set_diffuse(0.7);
@@ -45,8 +43,8 @@ fn main() {
 
     let mut left = Sphere::new();
     left.scale(0.33, 0.33, 0.33);
-    left.translate(1.5, 0.5, -0.5);
-    left.set_color(Color::new(0.5, 1.0, 0.1));
+    left.translate(-1.5, 0.33, -0.75);
+    left.set_color(Color::new(1.0, 0.8, 0.1));
     left.set_specular(0.7);
     left.set_diffuse(0.3);
 
@@ -60,9 +58,10 @@ fn main() {
     world.add_object(left_wall);
     world.add_object(right_wall);
     world.add_object(middle);
+    world.add_object(right);
     world.add_object(left);
 
-    let mut camera = Camera::new(1000.0, 500.0, PI / 3.0);
+    let mut camera = Camera::new(1500.0, 750.0, PI / 3.0);
     camera.transform = Transform::view_transform(
         &Tuple::point(0.0, 1.5, -5.0),
         &Tuple::point(0.0, 1.0, 0.0),
@@ -71,5 +70,5 @@ fn main() {
 
     let image = camera.render(&world);
 
-    PpmPrinter::dump_to_file(&image, "world.ppm").unwrap();
+    PpmPrinter::dump_to_file(&image, "smallworld.ppm").unwrap();
 }

@@ -36,6 +36,7 @@ impl Material {
         position: Tuple,
         eye: Tuple,
         normal: Tuple,
+        in_shadow: bool,
     ) -> Color {
         let effective_color = self.color * light.intensity;
         let lightv = (light.position - position).normalize();
@@ -43,7 +44,7 @@ impl Material {
         let light_dot_normal = lightv.dot_product(&normal);
         let mut diffuse = Color::new(0.0, 0.0, 0.0);
         let mut specular = Color::new(0.0, 0.0, 0.0);
-        if light_dot_normal >= 0.0 {
+        if light_dot_normal >= 0.0 && !in_shadow {
             diffuse = effective_color * self.diffuse * light_dot_normal;
             let reflect = (-lightv).reflect(&normal);
             let reflect_dot_eye = reflect.dot_product(&eye);

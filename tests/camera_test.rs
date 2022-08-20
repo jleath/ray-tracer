@@ -55,7 +55,7 @@ fn ray_construction() {
 
 #[test]
 fn render() {
-    let w = World::default_world();
+    let w = World::default();
     let mut c = Camera::new(11.0, 11.0, PI / 2.0);
     let from = Tuple::point(0.0, 0.0, -5.0);
     let to = Tuple::point(0.0, 0.0, 0.0);

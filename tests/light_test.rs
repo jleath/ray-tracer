@@ -31,23 +31,23 @@ fn lighting() {
     let mut eye = Tuple::vector(0.0, 0.0, -1.0);
     let normal = Tuple::vector(0.0, 0.0, -1.0);
     let mut light = PointLight::new(Tuple::point(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
-    let mut result = m.lighting(&light, position, eye, normal);
+    let mut result = m.lighting(&light, position, eye, normal, false);
     assert_eq!(result, Color::new(1.9, 1.9, 1.9));
 
     eye = Tuple::vector(0.0, 2_f64.sqrt() / 2.0, -(2_f64.sqrt()) / 2.0);
-    result = m.lighting(&light, position, eye, normal);
+    result = m.lighting(&light, position, eye, normal, false);
     assert_eq!(result, Color::new(1.0, 1.0, 1.0));
 
     eye = Tuple::vector(0.0, 0.0, -1.0);
     light = PointLight::new(Tuple::point(0.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
-    result = m.lighting(&light, position, eye, normal);
+    result = m.lighting(&light, position, eye, normal, false);
     assert_eq!(
         result,
         Color::new(0.7363961030678927, 0.7363961030678927, 0.7363961030678927)
     );
 
     eye = Tuple::vector(0.0, -(2_f64.sqrt()) / 2.0, -(2_f64.sqrt()) / 2.0);
-    result = m.lighting(&light, position, eye, normal);
+    result = m.lighting(&light, position, eye, normal, false);
     assert_eq!(
         result,
         Color::new(1.6363961030678928, 1.6363961030678928, 1.6363961030678928)
@@ -55,6 +55,17 @@ fn lighting() {
 
     eye = Tuple::vector(0.0, 0.0, -1.0);
     light = PointLight::new(Tuple::point(0.0, 0.0, 10.0), Color::new(1.0, 1.0, 1.0));
-    result = m.lighting(&light, position, eye, normal);
+    result = m.lighting(&light, position, eye, normal, false);
+    assert_eq!(result, Color::new(0.1, 0.1, 0.1));
+}
+
+#[test]
+fn lighting_in_shadow() {
+    let m = Material::new();
+    let position = Tuple::point(0.0, 0.0, 0.0);
+    let eyev = Tuple::vector(0.0, 0.0, -1.0);
+    let normalv = Tuple::vector(0.0, 0.0, -1.0);
+    let light = PointLight::new(Tuple::point(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
+    let result = m.lighting(&light, position, eyev, normalv, true);
     assert_eq!(result, Color::new(0.1, 0.1, 0.1));
 }

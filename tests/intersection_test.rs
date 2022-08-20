@@ -4,6 +4,7 @@ use ray_tracer::sphere::Sphere;
 use ray_tracer::tuple::Tuple;
 
 use ray_tracer::float_near_equal;
+use ray_tracer::EPSILON;
 
 #[test]
 fn init() {
@@ -136,4 +137,15 @@ fn prepare_comps() {
     assert_eq!(comps2.eyev, Tuple::vector(0.0, 0.0, -1.0));
     assert_eq!(comps2.normalv, Tuple::vector(0.0, 0.0, -1.0));
     assert!(comps2.inside);
+}
+
+#[test]
+fn hit_offsets_point() {
+    let r = Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
+    let mut shape = Sphere::new();
+    shape.translate(0.0, 0.0, 1.0);
+    let i = Intersection::new(5.0, &shape);
+    let comps = i.prepare_computation(&r);
+    assert!(comps.over_point.z < EPSILON / 2.0);
+    assert!(comps.point.z > comps.over_point.z);
 }
