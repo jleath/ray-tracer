@@ -4,7 +4,7 @@ use crate::tuple::Tuple;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Transform {
-    matrix: Matrix,
+    pub matrix: Matrix,
 }
 
 impl Default for Transform {
@@ -19,6 +19,24 @@ impl Transform {
         Transform {
             matrix: Matrix::identity_matrix(),
         }
+    }
+
+    #[must_use]
+    pub fn view_transform(from: &Tuple, to: &Tuple, up: &Tuple) -> Self {
+        let forward = (*to - *from).normalize();
+        let upn = up.normalize();
+        let left = forward.cross_product(&upn);
+        let true_up = left.cross_product(&forward);
+        let orientation = Matrix::new(vec![
+            vec![left.x, left.y, left.z, 0.0],
+            vec![true_up.x, true_up.y, true_up.z, 0.0],
+            vec![-forward.x, -forward.y, -forward.z, 0.0],
+            vec![0.0, 0.0, 0.0, 1.0],
+        ]);
+        let translation = Transform::new().translate(-from.x, -from.y, -from.z);
+        let mut t = Transform::new();
+        t.matrix = orientation.matrix_multiply(&translation.matrix);
+        t
     }
 
     #[must_use]

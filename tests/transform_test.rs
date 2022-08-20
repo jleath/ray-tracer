@@ -1,5 +1,6 @@
 use std::f64::consts::PI;
 
+use ray_tracer::matrix::Matrix;
 use ray_tracer::ray::Ray;
 use ray_tracer::transform::Transform;
 use ray_tracer::tuple::Tuple;
@@ -188,4 +189,53 @@ fn transform_ray() {
     let r3 = Transform::new().scale(2.0, 3.0, 4.0).transform_ray(&r);
     assert_eq!(r3.origin, Tuple::point(2.0, 6.0, 12.0));
     assert_eq!(r3.direction, Tuple::vector(0.0, 3.0, 0.0));
+}
+
+#[test]
+fn view_transform() {
+    let mut from = Tuple::point(0.0, 0.0, 0.0);
+    let mut to = Tuple::point(0.0, 0.0, -1.0);
+    let mut up = Tuple::vector(0.0, 1.0, 0.0);
+
+    let mut t = Transform::view_transform(&from, &to, &up);
+    assert_eq!(t, Transform::new());
+
+    to = Tuple::point(0.0, 0.0, 1.0);
+    t = Transform::view_transform(&from, &to, &up);
+    assert_eq!(t, Transform::new().scale(-1.0, 1.0, -1.0));
+
+    from = Tuple::point(0.0, 0.0, 8.0);
+    to = Tuple::point(0.0, 0.0, 0.0);
+    up = Tuple::vector(0.0, 1.0, 0.0);
+    t = Transform::view_transform(&from, &to, &up);
+    assert_eq!(t, Transform::new().translate(0.0, 0.0, -8.0));
+
+    from = Tuple::point(1.0, 3.0, 2.0);
+    to = Tuple::point(4.0, -2.0, 8.0);
+    up = Tuple::vector(1.0, 1.0, 0.0);
+    t = Transform::view_transform(&from, &to, &up);
+
+    let expected = Matrix::new(vec![
+        vec![
+            -0.5070925528371099,
+            0.5070925528371099,
+            0.6761234037828132,
+            -2.366431913239846,
+        ],
+        vec![
+            0.7677159338596801,
+            0.6060915267313263,
+            0.12121830534626524,
+            -2.8284271247461894,
+        ],
+        vec![
+            -0.35856858280031806,
+            0.5976143046671968,
+            -0.7171371656006361,
+            0.0,
+        ],
+        vec![0.0, 0.0, 0.0, 1.0],
+    ]);
+
+    assert_eq!(t.matrix, expected);
 }
