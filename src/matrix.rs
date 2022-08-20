@@ -60,12 +60,12 @@ impl Matrix {
 
     #[must_use]
     pub fn submatrix(&self, row: usize, col: usize) -> Matrix {
-        let mut result = vec![];
+        let mut result = Vec::with_capacity(self.buffer.len() - 1);
         for y in 0..self.buffer.len() {
             if y == row {
                 continue;
             }
-            let mut result_row = vec![];
+            let mut result_row = Vec::with_capacity(self.buffer[y].len() - 1);
             for x in 0..self.buffer[y].len() {
                 if x == col {
                     continue;
