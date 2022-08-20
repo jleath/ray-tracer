@@ -1,57 +1,75 @@
-use clap::Parser;
-use ray_tracer::canvas::Canvas;
+use ray_tracer::camera::Camera;
 use ray_tracer::color::Color;
-use ray_tracer::intersection::IntersectionList;
 use ray_tracer::point_light::PointLight;
 use ray_tracer::ppm_printer::PpmPrinter;
-use ray_tracer::ray::Ray;
 use ray_tracer::sphere::Sphere;
+use ray_tracer::transform::Transform;
 use ray_tracer::tuple::Tuple;
-
-#[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None)]
-struct Args {
-    #[clap(short, long, value_parser)]
-    output_file: String,
-
-    #[clap(short, long, value_parser, default_value_t = 1)]
-    canvas_size: usize,
-}
+use ray_tracer::world::World;
+use std::f64::consts::PI;
 
 fn main() {
-    let args = Args::parse();
-    let ray_origin = Tuple::point(0.0, 0.0, -5.0);
-    let wall_z = 10.0;
-    let wall_size = 7.0;
-    let canvas_pixels = args.canvas_size as f64;
-    let pixel_size = wall_size / canvas_pixels;
-    let half = wall_size / 2.0;
+    // create floor object
+    let mut floor = Sphere::new();
+    floor.scale(10.0, 0.01, 10.0);
+    floor.set_color(Color::new(1.0, 0.9, 0.9));
+    floor.set_specular(0.0);
 
-    let mut canvas = Canvas::new(canvas_pixels as usize, canvas_pixels as usize);
-    let mut shape = Sphere::new();
-    shape.material.color = Color::new(1.0, 0.2, 1.0);
-    let light_source = PointLight::new(Tuple::point(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
+    let mut left_wall = Sphere::new();
+    left_wall.scale(10.0, 0.01, 10.0);
+    left_wall.rotate_x(PI / 2.0);
+    left_wall.rotate_y(-PI / 4.0);
+    left_wall.translate(0.0, 0.0, 5.0);
+    left_wall.material = floor.material;
 
-    for y in 0..canvas_pixels as usize {
-        let world_y = half - pixel_size * y as f64;
+    let mut right_wall = Sphere::new();
+    right_wall.scale(10.0, 0.01, 10.0);
+    right_wall.rotate_x(PI / 2.0);
+    right_wall.rotate_y(PI / 4.0);
+    right_wall.translate(0.0, 0.0, 5.0);
+    right_wall.material = floor.material;
 
-        for x in 0..canvas_pixels as usize {
-            let world_x = -half + pixel_size * x as f64;
-            let position = Tuple::point(world_x as f64, world_y as f64, wall_z);
-            let r = Ray::new(ray_origin, (position - ray_origin).normalize());
-            let mut xs = IntersectionList::new(&shape.intersect(&r));
-            if let Some(hit) = xs.hit() {
-                let point = r.position(hit.t);
-                let normal = hit.object.normal_at(point);
-                let eye = -(r.direction);
-                let color = hit
-                    .object
-                    .material
-                    .lighting(&light_source, point, eye, normal);
-                canvas.write_pixel(x as usize, y as usize, color);
-            }
-        }
-    }
-    println!("Writing to {}", args.output_file);
-    PpmPrinter::dump_to_file(&canvas, &args.output_file).unwrap();
+    let mut middle = Sphere::new();
+    middle.scale(0.5, 0.5, 0.5);
+    middle.translate(-0.5, 1.0, 0.5);
+    middle.set_color(Color::new(0.1, 1.0, 0.5));
+    middle.set_diffuse(0.7);
+    middle.set_specular(0.3);
+
+    let mut right = Sphere::new();
+    right.scale(0.5, 0.5, 0.5);
+    right.translate(1.5, 0.5, -0.5);
+    right.set_color(Color::new(0.5, 1.0, 0.1));
+    right.set_diffuse(0.7);
+    right.set_specular(0.3);
+
+    let mut left = Sphere::new();
+    left.scale(0.33, 0.33, 0.33);
+    left.translate(1.5, 0.5, -0.5);
+    left.set_color(Color::new(0.5, 1.0, 0.1));
+    left.set_specular(0.7);
+    left.set_diffuse(0.3);
+
+    let mut world = World::new();
+    world.add_light(PointLight::new(
+        Tuple::point(-10.0, 10.0, -10.0),
+        Color::new(1.0, 1.0, 1.0),
+    ));
+
+    world.add_object(floor);
+    world.add_object(left_wall);
+    world.add_object(right_wall);
+    world.add_object(middle);
+    world.add_object(left);
+
+    let mut camera = Camera::new(1000.0, 500.0, PI / 3.0);
+    camera.transform = Transform::view_transform(
+        &Tuple::point(0.0, 1.5, -5.0),
+        &Tuple::point(0.0, 1.0, 0.0),
+        &Tuple::vector(0.0, 1.0, 0.0),
+    );
+
+    let image = camera.render(&world);
+
+    PpmPrinter::dump_to_file(&image, "world.ppm").unwrap();
 }
