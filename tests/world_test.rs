@@ -113,5 +113,3 @@ fn intersection_behind_ray() {
     let c = w.color_at(&r);
     assert_eq!(c, inner.material.color);
 }
-
-#[test]
