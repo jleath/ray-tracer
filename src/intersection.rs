@@ -1,4 +1,6 @@
+use crate::ray::Ray;
 use crate::sphere::Sphere;
+use crate::tuple::Tuple;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Intersection<'a> {
@@ -6,10 +8,39 @@ pub struct Intersection<'a> {
     pub object: &'a Sphere,
 }
 
+pub struct Comp<'a> {
+    pub object: &'a Sphere,
+    pub point: Tuple,
+    pub eyev: Tuple,
+    pub normalv: Tuple,
+    pub inside: bool,
+}
+
 impl<'a> Intersection<'a> {
     #[must_use]
     pub fn new(t: f64, object: &'a Sphere) -> Self {
         Intersection { t, object }
+    }
+
+    #[must_use]
+    pub fn prepare_computation(&self, r: &Ray) -> Comp {
+        let t = self.t;
+        let object = self.object;
+        let point = r.position(t);
+        let eyev = -r.direction;
+        let mut normalv = object.normal_at(point);
+        let mut inside = false;
+        if normalv.dot_product(&eyev) < 0.0 {
+            inside = true;
+            normalv = -normalv;
+        }
+        Comp {
+            object,
+            point,
+            eyev,
+            normalv,
+            inside,
+        }
     }
 }
 
@@ -32,6 +63,25 @@ impl<'a> IntersectionList<'a> {
             ix: list,
             sorted: true,
         }
+    }
+
+    #[must_use]
+    pub fn get(&self, i: usize) -> Option<&Intersection> {
+        if i < self.ix.len() {
+            Some(&self.ix[i])
+        } else {
+            None
+        }
+    }
+
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.ix.len()
+    }
+
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.ix.is_empty()
     }
 
     #[must_use]
