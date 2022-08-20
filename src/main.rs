@@ -1,3 +1,4 @@
+use clap::Parser;
 use ray_tracer::canvas::Canvas;
 use ray_tracer::color::Color;
 use ray_tracer::intersection::IntersectionList;
@@ -7,11 +8,22 @@ use ray_tracer::ray::Ray;
 use ray_tracer::sphere::Sphere;
 use ray_tracer::tuple::Tuple;
 
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+struct Args {
+    #[clap(short, long, value_parser)]
+    output_file: String,
+
+    #[clap(short, long, value_parser, default_value_t = 1)]
+    canvas_size: usize,
+}
+
 fn main() {
+    let args = Args::parse();
     let ray_origin = Tuple::point(0.0, 0.0, -5.0);
     let wall_z = 10.0;
     let wall_size = 7.0;
-    let canvas_pixels = 300.0;
+    let canvas_pixels = args.canvas_size as f64;
     let pixel_size = wall_size / canvas_pixels;
     let half = wall_size / 2.0;
 
@@ -19,10 +31,6 @@ fn main() {
     let mut shape = Sphere::new();
     shape.material.color = Color::new(1.0, 0.2, 1.0);
     let light_source = PointLight::new(Tuple::point(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
-    // shape.transform = shape
-    //     .transform
-    //     .shear(1.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    //     .scale(0.5, 1.0, 1.0);
 
     for y in 0..canvas_pixels as usize {
         let world_y = half - pixel_size * y as f64;
@@ -44,6 +52,6 @@ fn main() {
             }
         }
     }
-
-    PpmPrinter::dump_to_file(&canvas, "sphere.ppm").unwrap();
+    println!("Writing to {}", args.output_file);
+    PpmPrinter::dump_to_file(&canvas, &args.output_file).unwrap();
 }

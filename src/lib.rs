@@ -1,5 +1,6 @@
 #![warn(clippy::pedantic)]
 
+pub mod camera;
 pub mod canvas;
 pub mod color;
 pub mod intersection;
@@ -11,6 +12,7 @@ pub mod ray;
 pub mod sphere;
 pub mod transform;
 pub mod tuple;
+pub mod world;
 
 #[must_use]
 pub fn float_near_equal(a: f64, b: f64) -> bool {
