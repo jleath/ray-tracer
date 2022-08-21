@@ -22,6 +22,7 @@ fn default_world() {
     s1.material.diffuse = 0.7;
     s1.material.specular = 0.2;
     let mut s2 = Sphere::new();
+    s2.id = 1;
     s2.transform = s2.transform.scale(0.5, 0.5, 0.5);
 
     let world = World::default();
@@ -47,8 +48,8 @@ fn hit_shading() {
     let mut w = World::default();
     let r = Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
     let s = w.get_object(0).unwrap();
-    let i = Intersection::new(4.0, s);
-    let comps = i.prepare_computation(&r);
+    let i = Intersection::new(4.0, s.id);
+    let comps = i.prepare_computation(&r, &w);
     let c = w.shade_hit(&comps);
     assert_eq!(
         c,
@@ -61,14 +62,14 @@ fn hit_shading() {
 
     w.set_light(
         0,
-        &PointLight::new(Tuple::point(0.0, 0.25, 0.0), Color::new(1.0, 1.0, 1.0)),
+        &mut PointLight::new(Tuple::point(0.0, 0.25, 0.0), Color::new(1.0, 1.0, 1.0)),
     )
     .unwrap();
 
     let r = Ray::new(Tuple::point(0.0, 0.0, 0.0), Tuple::vector(0.0, 0.0, 1.0));
     let s = w.get_object(1).unwrap();
-    let i = Intersection::new(0.5, s);
-    let comps = i.prepare_computation(&r);
+    let i = Intersection::new(0.5, s.id);
+    let comps = i.prepare_computation(&r, &w);
 
     let c = w.shade_hit(&comps);
     assert_eq!(
@@ -88,8 +89,8 @@ fn shade_hit_in_shadow() {
     w.add_object(s1);
     let s2_id = w.add_object(s2);
     let r = Ray::new(Tuple::point(0.0, 0.0, 5.0), Tuple::vector(0.0, 0.0, 1.0));
-    let i = Intersection::new(4.0, w.get_object(s2_id).unwrap());
-    let comps = i.prepare_computation(&r);
+    let i = Intersection::new(4.0, s2_id);
+    let comps = i.prepare_computation(&r, &w);
     let c = w.shade_hit(&comps);
     assert_eq!(c, Color::new(0.1, 0.1, 0.1));
 }

@@ -8,6 +8,7 @@ use crate::tuple::Tuple;
 #[derive(Clone, Debug, PartialEq)]
 pub struct Sphere {
     center: Tuple,
+    pub id: usize,
     radius: f64,
     pub transform: Transform,
     pub material: Material,
@@ -15,7 +16,7 @@ pub struct Sphere {
 
 impl Default for Sphere {
     fn default() -> Self {
-        Self::new()
+        Sphere::new()
     }
 }
 
@@ -27,6 +28,7 @@ impl Sphere {
             radius: 1.0,
             transform: Transform::new(),
             material: Material::new(),
+            id: 0,
         }
     }
 
@@ -83,8 +85,8 @@ impl Sphere {
         if discriminant < 0.0 {
             return vec![];
         }
-        let t1 = Intersection::new((-b - discriminant.sqrt()) / (2.0 * a), self);
-        let t2 = Intersection::new((-b + discriminant.sqrt()) / (2.0 * a), self);
+        let t1 = Intersection::new((-b - discriminant.sqrt()) / (2.0 * a), self.id);
+        let t2 = Intersection::new((-b + discriminant.sqrt()) / (2.0 * a), self.id);
         if t2.t < t1.t {
             vec![t2, t1]
         } else {

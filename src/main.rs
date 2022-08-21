@@ -61,7 +61,7 @@ fn main() {
     world.add_object(right);
     world.add_object(left);
 
-    let mut camera = Camera::new(1500.0, 750.0, PI / 3.0);
+    let mut camera = Camera::new(150.0, 75.0, PI / 3.0);
     camera.transform = Transform::view_transform(
         &Tuple::point(0.0, 1.5, -5.0),
         &Tuple::point(0.0, 1.0, 0.0),

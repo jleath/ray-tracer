@@ -79,9 +79,10 @@ impl World {
     pub fn set_light(
         &mut self,
         id: usize,
-        new_light: &PointLight,
+        new_light: &mut PointLight,
     ) -> Result<(), InvalidWorldAccess> {
         if id < self.lights.len() {
+            new_light.id = id;
             self.lights[id] = *new_light;
             Ok(())
         } else {
@@ -94,19 +95,23 @@ impl World {
     /// Returns an error if id is not valid
     pub fn set_object(&mut self, id: usize, new_object: &Sphere) -> Result<(), InvalidWorldAccess> {
         if id < self.objects.len() {
-            self.objects[id] = new_object.clone();
+            let mut to_insert = new_object.clone();
+            to_insert.id = id;
+            self.objects[id] = to_insert;
             Ok(())
         } else {
             Err(InvalidWorldAccess)
         }
     }
 
-    pub fn add_object(&mut self, o: Sphere) -> usize {
+    pub fn add_object(&mut self, mut o: Sphere) -> usize {
+        o.id = self.objects.len();
         self.objects.push(o);
         self.objects.len() - 1
     }
 
-    pub fn add_light(&mut self, l: PointLight) -> usize {
+    pub fn add_light(&mut self, mut l: PointLight) -> usize {
+        l.id = self.lights.len();
         self.lights.push(l);
         self.lights.len() - 1
     }
@@ -122,11 +127,15 @@ impl World {
     }
 
     #[must_use]
+    /// # Panics
+    ///
+    /// Will panic if `comp` has an invalid value for `object_id`
     // This does not work very well for multiple light sources. It will render the shadows
     // appropriately but the shading won't look as realistic as it could. Need to look into
     // maybe some kind of lighten only color blending instead of just color addition.
     pub fn shade_hit(&self, comps: &Comp) -> Color {
-        let material = comps.object.material;
+        let object = self.get_object(comps.object_id).unwrap();
+        let material = object.material;
         let mut color = Color::new(0.0, 0.0, 0.0);
         for light in &self.lights {
             let shadowed = self.is_shadowed(comps.over_point, light);
@@ -139,7 +148,7 @@ impl World {
     pub fn color_at(&self, r: &Ray) -> Color {
         let mut ix = self.intersect(r);
         if let Some(hit) = ix.hit() {
-            let comps = hit.prepare_computation(r);
+            let comps = hit.prepare_computation(r, self);
             self.shade_hit(&comps)
         } else {
             Color::new(0.0, 0.0, 0.0)

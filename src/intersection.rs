@@ -1,16 +1,16 @@
 use crate::ray::Ray;
-use crate::sphere::Sphere;
 use crate::tuple::Tuple;
+use crate::world::World;
 use crate::EPSILON;
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Intersection<'a> {
+pub struct Intersection {
     pub t: f64,
-    pub object: &'a Sphere,
+    pub object_id: usize,
 }
 
-pub struct Comp<'a> {
-    pub object: &'a Sphere,
+pub struct Comp {
+    pub object_id: usize,
     pub point: Tuple,
     pub eyev: Tuple,
     pub normalv: Tuple,
@@ -18,16 +18,19 @@ pub struct Comp<'a> {
     pub over_point: Tuple,
 }
 
-impl<'a> Intersection<'a> {
+impl Intersection {
     #[must_use]
-    pub fn new(t: f64, object: &'a Sphere) -> Self {
-        Intersection { t, object }
+    pub fn new(t: f64, object_id: usize) -> Self {
+        Intersection { t, object_id }
     }
 
     #[must_use]
-    pub fn prepare_computation(&self, r: &Ray) -> Comp {
+    /// # Panics
+    ///
+    /// Will panic if the `Intersection` has an invalid `object_id`
+    pub fn prepare_computation(&self, r: &Ray, world: &World) -> Comp {
         let t = self.t;
-        let object = self.object;
+        let object = world.get_object(self.object_id).unwrap();
         let point = r.position(t);
         let eyev = -r.direction;
         let mut normalv = object.normal_at(point);
@@ -38,7 +41,7 @@ impl<'a> Intersection<'a> {
         }
         let over_point = point + normalv * EPSILON;
         Comp {
-            object,
+            object_id: self.object_id,
             point,
             eyev,
             normalv,
@@ -49,18 +52,18 @@ impl<'a> Intersection<'a> {
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub struct IntersectionList<'a> {
-    ix: Vec<Intersection<'a>>,
+pub struct IntersectionList {
+    ix: Vec<Intersection>,
     sorted: bool,
 }
 
-impl<'a> IntersectionList<'a> {
+impl IntersectionList {
     #[must_use]
     #[allow(clippy::ptr_arg)]
     /// # Panics
     ///
     /// May panic if the `Vec` passed into `new` contains `NaN`.
-    pub fn new(ix: &Vec<Intersection<'a>>) -> Self {
+    pub fn new(ix: &Vec<Intersection>) -> Self {
         let mut list = ix.clone();
         list.sort_unstable_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
         IntersectionList {

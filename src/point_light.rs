@@ -5,6 +5,7 @@ use crate::tuple::Tuple;
 pub struct PointLight {
     pub position: Tuple,
     pub intensity: Color,
+    pub id: usize,
 }
 
 impl PointLight {
@@ -13,6 +14,7 @@ impl PointLight {
         PointLight {
             position,
             intensity,
+            id: 0,
         }
     }
 }
