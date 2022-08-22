@@ -21,51 +21,38 @@ impl PpmPrinter {
     }
 
     // TODO: Clean this up
-    fn pixel_data(canvas: &Canvas) -> String {
-        let mut pixel_string = String::new();
-        let mut line_len = 0;
-        let mut values_printed = 0;
-        for pixel in canvas.pixels() {
-            let red = pixel.red_to_int().to_string();
-            let blue = pixel.blue_to_int().to_string();
-            let green = pixel.green_to_int().to_string();
-            if line_len + red.len() + 1 >= 70 {
-                pixel_string = pixel_string.trim_end().to_string();
-                pixel_string += "\n";
-                line_len = 0;
+    /// # Panics
+    ///
+    /// Panics if the pixel data cannot be converted into PPM format
+    #[must_use]
+    pub fn pixel_data(canvas: &Canvas) -> String {
+        let mut data_str = String::new();
+        for row in 0..canvas.height() {
+            let mut color_data = Vec::with_capacity(canvas.width());
+            for col in 0..canvas.width() {
+                let pixel = canvas.pixel_at(col, row);
+                color_data.push(format!(
+                    "{} {} {}",
+                    pixel.red_to_int(),
+                    pixel.green_to_int(),
+                    pixel.blue_to_int()
+                ));
             }
-            line_len += red.len() + 1;
-            pixel_string += &red;
-            pixel_string += " ";
-            if line_len + green.len() + 1 >= 70 {
-                pixel_string = pixel_string.trim_end().to_string();
-                pixel_string += "\n";
-                line_len = 0;
+            let mut bytes = color_data.join(" ").into_bytes();
+            let limit = 70;
+            let mut start = 0;
+            while bytes.len() - start >= limit {
+                let mut i = start + limit;
+                while i > 0 && bytes[i] != b' ' {
+                    i -= 1;
+                }
+                bytes[i] = b'\n';
+                start = i + 1;
             }
-            line_len += green.len() + 1;
-            pixel_string += &green;
-            pixel_string += " ";
-            if line_len + blue.len() + 1 >= 70 {
-                pixel_string = pixel_string.trim_end().to_string();
-                pixel_string += "\n";
-                line_len = 0;
-            }
-            line_len += blue.len() + 1;
-            pixel_string += &blue;
-            if values_printed + 1 < canvas.width() {
-                pixel_string += " ";
-            }
-            values_printed += 1;
-            if values_printed == canvas.width() {
-                pixel_string += "\n";
-                line_len = 0;
-                values_printed = 0;
-            }
+            data_str.push_str(std::str::from_utf8(&bytes).unwrap());
+            data_str.push('\n');
         }
-        if !pixel_string.ends_with('\n') {
-            pixel_string += "\n";
-        }
-        pixel_string
+        data_str
     }
 }
 
