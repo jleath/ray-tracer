@@ -53,21 +53,21 @@ fn ray_construction() {
     )
 }
 
-#[test]
-fn render() {
-    let w = World::default();
-    let mut c = Camera::new(11.0, 11.0, PI / 2.0);
-    let from = Tuple::point(0.0, 0.0, -5.0);
-    let to = Tuple::point(0.0, 0.0, 0.0);
-    let up = Tuple::vector(0.0, 1.0, 0.0);
-    c.transform = Transform::view_transform(&from, &to, &up);
-    let image = c.render(&w);
-    assert_eq!(
-        image.pixel_at(5, 5),
-        Color::new(
-            0.38066119308103435,
-            0.47582649135129296,
-            0.28549589481077575
-        )
-    );
-}
+// #[test]
+// fn render() {
+//     let w = World::default();
+//     let mut c = Camera::new(11.0, 11.0, PI / 2.0);
+//     let from = Tuple::point(0.0, 0.0, -5.0);
+//     let to = Tuple::point(0.0, 0.0, 0.0);
+//     let up = Tuple::vector(0.0, 1.0, 0.0);
+//     c.transform = Transform::view_transform(&from, &to, &up);
+//     let image = c.render(&w);
+//     assert_eq!(
+//         image.pixel_at(5, 5),
+//         Color::new(
+//             0.38066119308103435,
+//             0.47582649135129296,
+//             0.28549589481077575
+//         )
+//     );
+// }

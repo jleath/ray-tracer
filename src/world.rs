@@ -2,7 +2,7 @@ use crate::color::Color;
 use crate::intersection::{Comp, IntersectionList};
 use crate::point_light::PointLight;
 use crate::ray::Ray;
-use crate::sphere::Sphere;
+use crate::shape::Shape;
 use crate::tuple::Tuple;
 
 use std::fmt;
@@ -20,7 +20,7 @@ impl std::error::Error for InvalidWorldAccess {}
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct World {
-    objects: Vec<Sphere>,
+    objects: Vec<Shape>,
     lights: Vec<PointLight>,
 }
 
@@ -42,12 +42,12 @@ impl World {
     #[must_use]
     pub fn default_world() -> Self {
         let light = PointLight::new(Tuple::point(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
-        let mut s1 = Sphere::new();
-        s1.material.color = Color::new(0.8, 1.0, 0.6);
-        s1.material.diffuse = 0.7;
-        s1.material.specular = 0.2;
-        let mut s2 = Sphere::new();
-        s2.transform = s2.transform.scale(0.5, 0.5, 0.5);
+        let mut s1 = Shape::sphere();
+        s1.set_color(Color::new(0.8, 1.0, 0.6));
+        s1.set_diffuse(0.7);
+        s1.set_specular(0.2);
+        let mut s2 = Shape::sphere();
+        s2.scale(0.5, 0.5, 0.5);
         let mut new_world = Self::new();
         new_world.add_object(s1);
         new_world.add_object(s2);
@@ -56,7 +56,7 @@ impl World {
     }
 
     #[must_use]
-    pub fn get_object(&self, id: usize) -> Option<&Sphere> {
+    pub fn get_object(&self, id: usize) -> Option<&Shape> {
         if id < self.objects.len() {
             Some(&self.objects[id])
         } else {
@@ -90,24 +90,11 @@ impl World {
         }
     }
 
-    /// # Errors
-    ///
-    /// Returns an error if id is not valid
-    pub fn set_object(&mut self, id: usize, new_object: &Sphere) -> Result<(), InvalidWorldAccess> {
-        if id < self.objects.len() {
-            let mut to_insert = new_object.clone();
-            to_insert.id = id;
-            self.objects[id] = to_insert;
-            Ok(())
-        } else {
-            Err(InvalidWorldAccess)
-        }
-    }
-
-    pub fn add_object(&mut self, mut o: Sphere) -> usize {
-        o.id = self.objects.len();
+    pub fn add_object(&mut self, mut o: Shape) -> usize {
+        let id = self.objects.len();
+        o.set_id(id);
         self.objects.push(o);
-        self.objects.len() - 1
+        id
     }
 
     pub fn add_light(&mut self, mut l: PointLight) -> usize {
@@ -119,9 +106,10 @@ impl World {
     #[must_use]
     pub fn intersect(&self, r: &Ray) -> IntersectionList {
         let mut intersections = Vec::new();
-        for obj in &self.objects {
-            let mut xs = obj.intersect(r);
-            intersections.append(&mut xs);
+        for i in 0..self.objects.len() {
+            if let Some(mut xs) = self.objects[i].intersect(r) {
+                intersections.append(&mut xs);
+            }
         }
         IntersectionList::new(&intersections)
     }
@@ -135,7 +123,7 @@ impl World {
     // maybe some kind of lighten only color blending instead of just color addition.
     pub fn shade_hit(&self, comps: &Comp) -> Color {
         let object = self.get_object(comps.object_id).unwrap();
-        let material = object.material;
+        let material = object.material();
         let mut color = Color::new(0.0, 0.0, 0.0);
         for light in &self.lights {
             let shadowed = self.is_shadowed(comps.over_point, light);

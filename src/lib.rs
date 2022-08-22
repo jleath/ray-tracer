@@ -9,7 +9,7 @@ pub mod matrix;
 pub mod point_light;
 pub mod ppm_printer;
 pub mod ray;
-pub mod sphere;
+pub mod shape;
 pub mod transform;
 pub mod tuple;
 pub mod world;

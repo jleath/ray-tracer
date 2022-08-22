@@ -9,6 +9,7 @@ pub struct Intersection {
     pub object_id: usize,
 }
 
+#[derive(Debug)]
 pub struct Comp {
     pub object_id: usize,
     pub point: Tuple,
