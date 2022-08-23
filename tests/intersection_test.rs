@@ -143,6 +143,23 @@ fn prepare_comps() {
 }
 
 #[test]
+fn precompute_reflection() {
+    let shape = Shape::plane();
+    let mut world = World::new();
+    let r = Ray::new(
+        Tuple::point(0.0, 1.0, -1.0),
+        Tuple::vector(0.0, -(2_f64.sqrt()) / 2.0, (2_f64.sqrt()) / 2.0),
+    );
+    world.add_object(shape);
+    let i = Intersection::new(2_f64.sqrt(), 0);
+    let comps = i.prepare_computation(&r, &world);
+    assert_eq!(
+        comps.reflectv,
+        Tuple::vector(0.0, 2_f64.sqrt() / 2.0, 2_f64.sqrt() / 2.0)
+    );
+}
+
+#[test]
 fn hit_offsets_point() {
     let r = Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
     let mut shape = Shape::sphere();

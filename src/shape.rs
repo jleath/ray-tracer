@@ -75,12 +75,17 @@ impl Shape {
         self.material.specular = c;
     }
 
+    pub fn set_reflective(&mut self, c: f64) {
+        self.material.reflective = c;
+    }
+
     pub fn set_diffuse(&mut self, c: f64) {
         self.material.diffuse = c;
     }
 
     pub fn scale(&mut self, x: f64, y: f64, z: f64) {
-        self.transform = self.transform.clone().scale(x, y, z);
+        let new_transform = self.transform.clone().scale(x, y, z);
+        self.transform = new_transform;
     }
 
     pub fn translate(&mut self, x: f64, y: f64, z: f64) {
@@ -124,7 +129,7 @@ impl Shape {
         if let Some(id) = self.id {
             let hits = match self.kind {
                 ShapeType::Sphere => sphere_intersect(&self.transform, ray, id),
-                ShapeType::Plane => plane_intersect(ray, id),
+                ShapeType::Plane => plane_intersect(&self.transform, ray, id),
             };
             Some(hits)
         } else {
@@ -157,7 +162,8 @@ fn sphere_intersect(transform: &Transform, ray: &Ray, object_id: usize) -> Vec<I
     }
 }
 
-fn plane_intersect(ray: &Ray, object_id: usize) -> Vec<Intersection> {
+fn plane_intersect(transform: &Transform, ray: &Ray, object_id: usize) -> Vec<Intersection> {
+    let ray = transform.clone().inverse().transform_ray(ray);
     if ray.direction.y.abs() < EPSILON {
         return vec![];
     }

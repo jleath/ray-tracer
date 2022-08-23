@@ -11,27 +11,24 @@ use std::f64::consts::PI;
 
 fn main() {
     let mut floor = Shape::plane();
-    let mut checkers = Pattern::checkered(Color::new(0.0, 0.0, 0.0), Color::new(1.0, 1.0, 1.0));
-    checkers.scale(1.1, 1.1, 1.1);
-    checkers.translate(1.0, 0.0, 0.0);
-    floor.set_pattern(&checkers);
+    // let mut checkers = Pattern::checkered(Color::new(0.0, 0.0, 0.0), Color::new(1.0, 1.0, 1.0));
+    // checkers.scale(1.1, 1.1, 1.1);
+    floor.set_reflective(0.8);
+    // checkers.translate(1.0, 0.0, 0.0);
+    // floor.set_pattern(&checkers);
     floor.scale(1.0, 0.01, 1.0);
-    floor.set_color(Color::new(1.0, 0.9, 0.9));
+    floor.set_color(Color::new(0.45, 0.45, 0.45));
     floor.set_specular(0.0);
 
-    let mut stripes = Pattern::stripes(Color::new(1.0, 0.0, 0.0), Color::new(0.0, 1.0, 0.0));
-    stripes.scale(0.5, 0.5, 0.5);
-
     let mut middle = Shape::sphere();
-    middle.set_pattern(&stripes);
     middle.translate(-0.5, 1.0, 0.5);
-    middle.set_color(Color::new(0.1, 1.0, 0.5));
+    middle.set_color(Color::new(0.75, 0.00, 0.00));
     middle.set_diffuse(0.7);
-    middle.set_specular(0.3);
+    middle.set_specular(0.85);
 
     let mut right = Shape::sphere();
     right.scale(0.5, 0.5, 0.5);
-    right.translate(1.5, 0.5, -0.5);
+    right.translate(1.5, 1.5, -0.5);
     right.set_color(Color::new(0.5, 1.0, 0.1));
     right.set_diffuse(0.7);
     right.set_specular(0.3);
@@ -54,14 +51,14 @@ fn main() {
     world.add_object(right);
     world.add_object(left);
 
-    let mut camera = Camera::new(400.0, 200.0, PI / 3.0);
+    let mut camera = Camera::new(500.0, 250.0, PI / 3.0);
     camera.transform = Transform::view_transform(
-        &Tuple::point(0.0, 1.5, -5.0),
+        &Tuple::point(0.0, 1.5, -9.0),
         &Tuple::point(0.0, 1.0, 0.0),
         &Tuple::vector(0.0, 1.0, 0.0),
     );
 
     let image = camera.render(&world);
 
-    PpmPrinter::dump_to_file(&image, "smallworld.ppm").unwrap();
+    PpmPrinter::dump_to_file(&image, "darker.ppm").unwrap();
 }

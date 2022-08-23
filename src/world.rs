@@ -1,4 +1,5 @@
 use crate::color::Color;
+use crate::float_near_equal;
 use crate::intersection::{Comp, IntersectionList};
 use crate::point_light::PointLight;
 use crate::ray::Ray;
@@ -135,8 +136,24 @@ impl World {
                 comps.normalv,
                 shadowed,
             );
+            color += self.reflected_color(comps);
         }
         color
+    }
+
+    #[must_use]
+    /// # Panics
+    ///
+    /// Will panic if `comp` has an invalid value for `object_id`
+    pub fn reflected_color(&self, comps: &Comp) -> Color {
+        let object = self.get_object(comps.object_id).unwrap();
+        let material = object.material();
+        if float_near_equal(material.reflective, 0.0) {
+            return Color::new(0.0, 0.0, 0.0);
+        }
+        let reflect_ray = Ray::new(comps.over_point, comps.reflectv);
+        let color = self.color_at(&reflect_ray);
+        color * material.reflective
     }
 
     #[must_use]

@@ -1,3 +1,4 @@
+use crate::float_near_equal;
 use crate::ray::Ray;
 use crate::tuple::Tuple;
 use crate::world::World;
@@ -15,6 +16,7 @@ pub struct Comp {
     pub point: Tuple,
     pub eyev: Tuple,
     pub normalv: Tuple,
+    pub reflectv: Tuple,
     pub inside: bool,
     pub over_point: Tuple,
 }
@@ -40,12 +42,14 @@ impl Intersection {
             inside = true;
             normalv = -normalv;
         }
+        let reflectv = r.direction.reflect(&normalv);
         let over_point = point + normalv * EPSILON;
         Comp {
             object_id: self.object_id,
             point,
             eyev,
             normalv,
+            reflectv,
             inside,
             over_point,
         }
@@ -103,7 +107,7 @@ impl IntersectionList {
             self.sorted = true;
         }
         for i in &self.ix {
-            if i.t >= 0.0 {
+            if !float_near_equal(i.t, 0.0) && i.t > 0.0 {
                 return Some(i);
             }
         }

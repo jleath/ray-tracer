@@ -156,8 +156,5 @@ fn reflection() {
     let v2 = Tuple::vector(0.0, -1.0, 0.0);
     let n2 = Tuple::vector(2_f64.sqrt() / 2.0, 2_f64.sqrt() / 2.0, 0.0);
     let r2 = v2.reflect(&n2);
-    assert_eq!(
-        r2,
-        Tuple::vector(1.0000000000000002, 2.220446049250313e-16, 0.0)
-    );
+    assert_eq!(r2, Tuple::vector(1.0, 0.0, 0.0));
 }

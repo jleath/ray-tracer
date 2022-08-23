@@ -95,6 +95,63 @@ fn shade_hit_in_shadow() {
 }
 
 #[test]
+fn reflect_on_nonreflective() {
+    let r = Ray::new(Tuple::point(0.0, 0.0, 0.0), Tuple::vector(0.0, 0.0, 1.0));
+    let light = PointLight::new(Tuple::point(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
+    let mut s1 = Shape::sphere();
+    s1.set_color(Color::new(0.8, 1.0, 0.6));
+    s1.set_diffuse(0.7);
+    s1.set_specular(0.2);
+    let mut s2 = Shape::sphere();
+    s2.scale(0.5, 0.5, 0.5);
+    s2.set_ambient(1.0);
+    let mut new_world = World::new();
+    new_world.add_object(s1);
+    new_world.add_object(s2);
+    new_world.add_light(light);
+
+    let i = Intersection::new(1.0, 1);
+    let comps = i.prepare_computation(&r, &new_world);
+    let c = new_world.reflected_color(&comps);
+    assert_eq!(c, Color::new(0.0, 0.0, 0.0));
+}
+
+#[test]
+fn reflect_on_reflective() {
+    let mut w = World::default_world();
+    let mut shape = Shape::plane();
+    shape.set_reflective(0.5);
+    shape.translate(0.0, -1.0, 0.0);
+    w.add_object(shape);
+    let r = Ray::new(
+        Tuple::point(0.0, 0.0, -3.0),
+        Tuple::vector(0.0, -(2_f64.sqrt()) / 2.0, 2_f64.sqrt() / 2.0),
+    );
+    let i = Intersection::new(2_f64.sqrt(), 2);
+    let comps = i.prepare_computation(&r, &w);
+    let color = w.reflected_color(&comps);
+    println!("{:#?}", comps);
+    assert_eq!(color, Color::new(0.19033, 0.23791, 0.14274));
+}
+
+#[test]
+fn shade_hit_with_reflective() {
+    let mut w = World::default_world();
+    let mut shape = Shape::plane();
+    shape.set_reflective(0.5);
+    shape.translate(0.0, -1.0, 0.0);
+    w.add_object(shape);
+    let r = Ray::new(
+        Tuple::point(0.0, 0.0, -3.0),
+        Tuple::vector(0.0, -(2_f64.sqrt()) / 2.0, 2_f64.sqrt() / 2.0),
+    );
+    let i = Intersection::new(2_f64.sqrt(), 2);
+    let comps = i.prepare_computation(&r, &w);
+    let color = w.shade_hit(&comps);
+    assert_eq!(color, Color::new(0.87675, 0.92434, 0.82917));
+}
+
+#[test]
 fn ray_miss() {
     let w = World::default();
     let r = Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 1.0, 0.0));
