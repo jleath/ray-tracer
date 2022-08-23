@@ -1,3 +1,4 @@
+use ray_tracer::color::Color;
 use ray_tracer::material::Material;
 use ray_tracer::pattern::Pattern;
 use ray_tracer::point_light::PointLight;
@@ -89,4 +90,47 @@ fn stripes_with_both_transforms() {
     pattern.scale(2.0, 2.0, 2.0);
     let c = pattern.color_at_object(&object, Tuple::point(1.5, 0.0, 0.0));
     assert_eq!(c, WHITE);
+}
+
+#[test]
+fn gradients() {
+    let pattern = Pattern::gradient(WHITE, BLACK);
+    assert_eq!(pattern.color_at(Tuple::point(0.0, 0.0, 0.0)), WHITE);
+    assert_eq!(
+        pattern.color_at(Tuple::point(0.25, 0.0, 0.0)),
+        Color::new(0.75, 0.75, 0.75)
+    );
+    assert_eq!(
+        pattern.color_at(Tuple::point(0.5, 0.0, 0.0)),
+        Color::new(0.5, 0.5, 0.5)
+    );
+    assert_eq!(
+        pattern.color_at(Tuple::point(0.75, 0.0, 0.0)),
+        Color::new(0.25, 0.25, 0.25)
+    );
+}
+
+#[test]
+fn rings() {
+    let pattern = Pattern::rings(WHITE, BLACK);
+    assert_eq!(pattern.color_at(Tuple::point(0.0, 0.0, 0.0)), WHITE);
+    assert_eq!(pattern.color_at(Tuple::point(1.0, 0.0, 0.0)), BLACK);
+    assert_eq!(pattern.color_at(Tuple::point(0.0, 0.0, 1.0)), BLACK);
+    assert_eq!(pattern.color_at(Tuple::point(0.708, 0.0, 0.708)), BLACK);
+}
+
+#[test]
+fn checkered() {
+    let pattern = Pattern::checkered(WHITE, BLACK);
+    assert_eq!(pattern.color_at(Tuple::point(0.0, 0.0, 0.0)), WHITE);
+    assert_eq!(pattern.color_at(Tuple::point(0.99, 0.0, 0.0)), WHITE);
+    assert_eq!(pattern.color_at(Tuple::point(1.01, 0.0, 0.0)), BLACK);
+
+    assert_eq!(pattern.color_at(Tuple::point(0.0, 0.0, 0.0)), WHITE);
+    assert_eq!(pattern.color_at(Tuple::point(0.0, 0.99, 0.0)), WHITE);
+    assert_eq!(pattern.color_at(Tuple::point(0.0, 1.01, 0.0)), BLACK);
+
+    assert_eq!(pattern.color_at(Tuple::point(0.0, 0.0, 0.0)), WHITE);
+    assert_eq!(pattern.color_at(Tuple::point(0.0, 0.0, 0.99)), WHITE);
+    assert_eq!(pattern.color_at(Tuple::point(0.0, 0.0, 1.01)), BLACK);
 }

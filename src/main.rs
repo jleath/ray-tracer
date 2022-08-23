@@ -11,7 +11,11 @@ use std::f64::consts::PI;
 
 fn main() {
     let mut floor = Shape::plane();
-    floor.scale(10.0, 0.01, 10.0);
+    let mut checkers = Pattern::checkered(Color::new(0.0, 0.0, 0.0), Color::new(1.0, 1.0, 1.0));
+    checkers.scale(1.1, 1.1, 1.1);
+    checkers.translate(1.0, 0.0, 0.0);
+    floor.set_pattern(&checkers);
+    floor.scale(1.0, 0.01, 1.0);
     floor.set_color(Color::new(1.0, 0.9, 0.9));
     floor.set_specular(0.0);
 
@@ -50,7 +54,7 @@ fn main() {
     world.add_object(right);
     world.add_object(left);
 
-    let mut camera = Camera::new(500.0, 250.0, PI / 3.0);
+    let mut camera = Camera::new(400.0, 200.0, PI / 3.0);
     camera.transform = Transform::view_transform(
         &Tuple::point(0.0, 1.5, -5.0),
         &Tuple::point(0.0, 1.0, 0.0),

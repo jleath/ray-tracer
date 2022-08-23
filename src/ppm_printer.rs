@@ -41,7 +41,7 @@ impl PpmPrinter {
             let mut bytes = color_data.join(" ").into_bytes();
             let limit = 70;
             let mut start = 0;
-            while bytes.len() - start >= limit {
+            while bytes.len() - start > limit {
                 let mut i = start + limit;
                 while i > 0 && bytes[i] != b' ' {
                     i -= 1;
