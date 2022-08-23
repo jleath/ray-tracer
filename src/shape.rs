@@ -1,6 +1,7 @@
 use crate::color::Color;
 use crate::intersection::Intersection;
 use crate::material::Material;
+use crate::pattern::Pattern;
 use crate::ray::Ray;
 use crate::transform::Transform;
 use crate::tuple::Tuple;
@@ -46,6 +47,10 @@ impl Shape {
 
     pub fn set_id(&mut self, id: usize) {
         self.id = Some(id);
+    }
+
+    pub fn set_pattern(&mut self, pattern: &Pattern) {
+        self.material.set_pattern(pattern);
     }
 
     #[must_use]

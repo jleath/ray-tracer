@@ -60,20 +60,25 @@ impl Matrix {
 
     #[must_use]
     pub fn submatrix(&self, row: usize, col: usize) -> Matrix {
-        let mut result = Vec::with_capacity(self.buffer.len() - 1);
-        for y in 0..self.buffer.len() {
-            if y == row {
-                continue;
-            }
-            let mut result_row = Vec::with_capacity(self.buffer[y].len() - 1);
-            for x in 0..self.buffer[y].len() {
-                if x == col {
-                    continue;
-                }
-                result_row.push(self.buffer[y][x]);
-            }
-            result.push(result_row);
+        let mut result = self.buffer.clone();
+        result.remove(row);
+        for row in &mut result {
+            row.remove(col);
         }
+        // let mut result = Vec::with_capacity(self.buffer.len() - 1);
+        // for y in 0..self.buffer.len() {
+        //     if y == row {
+        //         continue;
+        //     }
+        //     let mut result_row = Vec::with_capacity(self.buffer[y].len() - 1);
+        //     for x in 0..self.buffer[y].len() {
+        //         if x == col {
+        //             continue;
+        //         }
+        //         result_row.push(self.buffer[y][x]);
+        //     }
+        //     result.push(result_row);
+        // }
         Matrix::new(result)
     }
 
@@ -102,14 +107,15 @@ impl Matrix {
     ///
     /// Will panic if self is not invertible
     pub fn inverse(&self) -> Matrix {
-        assert!(self.is_invertible());
+        let d = self.determinant();
 
+        assert!(d != 0.0);
         let mut result = self.buffer.clone();
 
         for (y, row) in self.buffer.iter().enumerate() {
             for (x, _) in row.iter().enumerate() {
                 let c = self.cofactor(y, x);
-                result[x][y] = c / self.determinant();
+                result[x][y] = c / d;
             }
         }
         Matrix::new(result)

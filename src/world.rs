@@ -127,7 +127,14 @@ impl World {
         let mut color = Color::new(0.0, 0.0, 0.0);
         for light in &self.lights {
             let shadowed = self.is_shadowed(comps.over_point, light);
-            color += material.lighting(light, comps.point, comps.eyev, comps.normalv, shadowed);
+            color += material.lighting(
+                light,
+                object,
+                comps.point,
+                comps.eyev,
+                comps.normalv,
+                shadowed,
+            );
         }
         color
     }

@@ -1,14 +1,17 @@
 use crate::color::Color;
+use crate::pattern::Pattern;
 use crate::point_light::PointLight;
+use crate::shape::Shape;
 use crate::tuple::Tuple;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Material {
     pub color: Color,
     pub ambient: f64,
     pub diffuse: f64,
     pub specular: f64,
     pub shininess: f64,
+    pub pattern: Option<Pattern>,
 }
 
 impl Default for Material {
@@ -26,19 +29,28 @@ impl Material {
             diffuse: 0.9,
             specular: 0.9,
             shininess: 200.0,
+            pattern: None,
         }
+    }
+
+    pub fn set_pattern(&mut self, p: &Pattern) {
+        self.pattern = Some(p.clone());
     }
 
     #[must_use]
     pub fn lighting(
         &self,
         light: &PointLight,
+        object: &Shape,
         position: Tuple,
         eye: Tuple,
         normal: Tuple,
         in_shadow: bool,
     ) -> Color {
-        let effective_color = self.color * light.intensity;
+        let mut effective_color = self.color * light.intensity;
+        if let Some(pattern) = &self.pattern {
+            effective_color = pattern.color_at_object(object, position) * light.intensity;
+        }
         let lightv = (light.position - position).normalize();
         let ambient = effective_color * self.ambient;
         let light_dot_normal = lightv.dot_product(&normal);

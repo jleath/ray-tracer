@@ -1,5 +1,6 @@
 use ray_tracer::camera::Camera;
 use ray_tracer::color::Color;
+use ray_tracer::pattern::Pattern;
 use ray_tracer::point_light::PointLight;
 use ray_tracer::ppm_printer::PpmPrinter;
 use ray_tracer::shape::Shape;
@@ -14,7 +15,11 @@ fn main() {
     floor.set_color(Color::new(1.0, 0.9, 0.9));
     floor.set_specular(0.0);
 
+    let mut stripes = Pattern::stripes(Color::new(1.0, 0.0, 0.0), Color::new(0.0, 1.0, 0.0));
+    stripes.scale(0.5, 0.5, 0.5);
+
     let mut middle = Shape::sphere();
+    middle.set_pattern(&stripes);
     middle.translate(-0.5, 1.0, 0.5);
     middle.set_color(Color::new(0.1, 1.0, 0.5));
     middle.set_diffuse(0.7);
@@ -45,7 +50,7 @@ fn main() {
     world.add_object(right);
     world.add_object(left);
 
-    let mut camera = Camera::new(300.0, 150.0, PI / 3.0);
+    let mut camera = Camera::new(500.0, 250.0, PI / 3.0);
     camera.transform = Transform::view_transform(
         &Tuple::point(0.0, 1.5, -5.0),
         &Tuple::point(0.0, 1.0, 0.0),
