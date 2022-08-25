@@ -16,11 +16,14 @@ pub mod tuple;
 pub mod world;
 
 pub const EPSILON: f64 = 0.00001;
+pub const MAX_REFLECT_DEPTH: i32 = 5;
+
 pub const BLACK: color::Color = color::Color {
     red: 0.0,
     green: 0.0,
     blue: 0.0,
 };
+
 pub const WHITE: color::Color = color::Color {
     red: 1.0,
     green: 1.0,

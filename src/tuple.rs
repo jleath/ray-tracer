@@ -17,6 +17,11 @@ impl Tuple {
     }
 
     #[must_use]
+    pub fn contains_nan(&self) -> bool {
+        f64::is_nan(self.x) || f64::is_nan(self.y) || f64::is_nan(self.z) || f64::is_nan(self.w)
+    }
+
+    #[must_use]
     pub fn point(x: f64, y: f64, z: f64) -> Self {
         Tuple::new(x, y, z, 1.0)
     }
@@ -83,6 +88,8 @@ impl PartialEq for Tuple {
             && float_near_equal(self.w, other.w)
     }
 }
+
+impl Eq for Tuple {}
 
 impl ops::Add for Tuple {
     type Output = Self;

@@ -4,7 +4,7 @@ use crate::tuple::Tuple;
 use crate::world::World;
 use crate::EPSILON;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Intersection {
     pub t: f64,
     pub object_id: usize,
@@ -19,6 +19,9 @@ pub struct Comp {
     pub reflectv: Tuple,
     pub inside: bool,
     pub over_point: Tuple,
+    pub under_point: Tuple,
+    pub n1: f64,
+    pub n2: f64,
 }
 
 impl Intersection {
@@ -44,6 +47,7 @@ impl Intersection {
         }
         let reflectv = r.direction.reflect(&normalv);
         let over_point = point + normalv * EPSILON;
+        let under_point = point - normalv * EPSILON;
         Comp {
             object_id: self.object_id,
             point,
@@ -52,6 +56,9 @@ impl Intersection {
             reflectv,
             inside,
             over_point,
+            under_point,
+            n1: 0.0,
+            n2: 0.0,
         }
     }
 }
@@ -60,6 +67,7 @@ impl Intersection {
 pub struct IntersectionList {
     ix: Vec<Intersection>,
     sorted: bool,
+    pub hit_index: usize,
 }
 
 impl IntersectionList {
@@ -74,7 +82,48 @@ impl IntersectionList {
         IntersectionList {
             ix: list,
             sorted: true,
+            hit_index: 0,
         }
+    }
+
+    /// # Panics
+    ///
+    /// may panic
+    #[must_use]
+    pub fn prepare_computation(&self, idx: usize, r: &Ray, w: &World) -> Comp {
+        let mut containers: Vec<usize> = vec![];
+        let mut result = self.ix[idx].prepare_computation(r, w);
+        for (i, intersection) in self.ix.iter().enumerate() {
+            if i == idx {
+                if containers.is_empty() {
+                    result.n1 = 1.0;
+                } else {
+                    let object = w.get_object(containers[containers.len() - 1]).unwrap();
+                    result.n1 = object.material().refractive_index;
+                }
+            }
+            let mut in_containers = false;
+            for (j, object_id) in containers.iter().enumerate() {
+                if *object_id == intersection.object_id {
+                    containers.remove(j);
+                    in_containers = true;
+                    break;
+                }
+            }
+            if !in_containers {
+                containers.push(intersection.object_id);
+            }
+            if i == idx {
+                if containers.is_empty() {
+                    result.n2 = 1.0;
+                } else {
+                    let object = w.get_object(containers[containers.len() - 1]).unwrap();
+                    result.n2 = object.material().refractive_index;
+                }
+                return result;
+            }
+        }
+        result
     }
 
     #[must_use]
@@ -106,8 +155,10 @@ impl IntersectionList {
                 .sort_unstable_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
             self.sorted = true;
         }
-        for i in &self.ix {
+        for idx in 0..self.ix.len() {
+            let i = &self.ix[idx];
             if !float_near_equal(i.t, 0.0) && i.t > 0.0 {
+                self.hit_index = idx;
                 return Some(i);
             }
         }

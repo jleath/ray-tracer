@@ -81,7 +81,7 @@ fn sphere_intersection_behind() {
 fn hit_all_positive() {
     let i1 = Intersection::new(1.0, 0);
     let i2 = Intersection::new(2.0, 0);
-    let list = vec![i1.clone(), i2];
+    let list = vec![i1, i2];
     let mut xs = IntersectionList::new(&list);
     let i = xs.hit().unwrap();
     assert_eq!(i, &i1);
@@ -91,7 +91,7 @@ fn hit_all_positive() {
 fn hit_some_negative() {
     let i1 = Intersection::new(-1.0, 0);
     let i2 = Intersection::new(1.0, 0);
-    let list = vec![i1, i2.clone()];
+    let list = vec![i1, i2];
     let mut xs = IntersectionList::new(&list);
     let i = xs.hit().unwrap();
     assert_eq!(i, &i2);
@@ -113,7 +113,7 @@ fn hit_gets_first() {
     let i2 = Intersection::new(7.0, 0);
     let i3 = Intersection::new(-3.0, 0);
     let i4 = Intersection::new(2.0, 0);
-    let list = vec![i1, i2, i3, i4.clone()];
+    let list = vec![i1, i2, i3, i4];
     let mut xs = IntersectionList::new(&list);
     let i = xs.hit().unwrap();
     assert_eq!(i, &i4);
@@ -157,6 +157,50 @@ fn precompute_reflection() {
         comps.reflectv,
         Tuple::vector(0.0, 2_f64.sqrt() / 2.0, 2_f64.sqrt() / 2.0)
     );
+}
+
+#[test]
+fn precompute_n1_and_n2() {
+    let mut world = World::new();
+    let mut a = Shape::glass_sphere();
+    a.scale(2.0, 2.0, 2.0);
+    a.set_refractive_index(1.5);
+    let mut b = Shape::glass_sphere();
+    b.translate(0.0, 0.0, -0.25);
+    b.set_refractive_index(2.0);
+    let mut c = Shape::glass_sphere();
+    c.translate(0.0, 0.0, 0.25);
+    c.set_refractive_index(2.5);
+
+    world.add_object(a);
+    world.add_object(b);
+    world.add_object(c);
+
+    let r = Ray::new(Tuple::point(0.0, 0.0, -4.0), Tuple::vector(0.0, 0.0, 1.0));
+    let intersections = vec![
+        Intersection::new(2.0, 0),
+        Intersection::new(2.75, 1),
+        Intersection::new(3.25, 2),
+        Intersection::new(4.75, 1),
+        Intersection::new(5.25, 2),
+        Intersection::new(6.0, 0),
+    ];
+    let ix = IntersectionList::new(&intersections);
+
+    let expect = [
+        [1.0, 1.5],
+        [1.5, 2.0],
+        [2.0, 2.5],
+        [2.5, 2.5],
+        [2.5, 1.5],
+        [1.5, 1.0],
+    ];
+
+    for (idx, _) in intersections.iter().enumerate() {
+        let comps = ix.prepare_computation(idx, &r, &world);
+        assert!(float_near_equal(comps.n1, expect[idx][0]));
+        assert!(float_near_equal(comps.n2, expect[idx][1]));
+    }
 }
 
 #[test]

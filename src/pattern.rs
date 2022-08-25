@@ -11,6 +11,7 @@ pub enum PatternType {
     Gradient,
     Rings,
     Checkered,
+    Test,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -22,6 +23,15 @@ pub struct Pattern {
 }
 
 impl Pattern {
+    #[must_use]
+    pub fn test_pattern() -> Pattern {
+        Pattern {
+            a: Color::new(0.0, 0.0, 0.0),
+            b: Color::new(0.0, 0.0, 0.0),
+            kind: PatternType::Test,
+            transform: Transform::new(),
+        }
+    }
     #[must_use]
     pub fn stripes(a: Color, b: Color) -> Pattern {
         Pattern {
@@ -66,6 +76,7 @@ impl Pattern {
     #[allow(clippy::cast_possible_truncation)]
     pub fn color_at(&self, pos: Tuple) -> Color {
         match self.kind {
+            PatternType::Test => Color::new(pos.x, pos.y, pos.z),
             PatternType::Stripes => {
                 if (pos.x.floor()) as i32 % 2 == 0 {
                     self.a

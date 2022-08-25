@@ -134,3 +134,14 @@ fn checkered() {
     assert_eq!(pattern.color_at(Tuple::point(0.0, 0.0, 0.99)), WHITE);
     assert_eq!(pattern.color_at(Tuple::point(0.0, 0.0, 1.01)), BLACK);
 }
+
+#[test]
+fn test_pattern() {
+    let mut test = Pattern::test_pattern();
+    let mut shape = Shape::sphere();
+    shape.scale(2.0, 2.0, 2.0);
+    test.translate(0.5, 1.0, 1.5);
+    shape.set_pattern(&test);
+    let c = test.color_at_object(&shape, Tuple::point(2.5, 3.0, 3.5));
+    assert_eq!(c, Color::new(0.75, 0.5, 0.25));
+}

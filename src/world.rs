@@ -66,6 +66,11 @@ impl World {
     }
 
     #[must_use]
+    pub fn num_objects(&self) -> usize {
+        self.objects.len()
+    }
+
+    #[must_use]
     pub fn get_light(&self, id: usize) -> Option<&PointLight> {
         if id < self.lights.len() {
             Some(&self.lights[id])
@@ -122,13 +127,15 @@ impl World {
     // This does not work very well for multiple light sources. It will render the shadows
     // appropriately but the shading won't look as realistic as it could. Need to look into
     // maybe some kind of lighten only color blending instead of just color addition.
-    pub fn shade_hit(&self, comps: &Comp) -> Color {
+    pub fn shade_hit(&self, comps: &Comp, max_depth: i32) -> Color {
         let object = self.get_object(comps.object_id).unwrap();
         let material = object.material();
-        let mut color = Color::new(0.0, 0.0, 0.0);
+        let mut surface = Color::new(0.0, 0.0, 0.0);
+        let mut reflected = Color::new(0.0, 0.0, 0.0);
+        let mut refracted = Color::new(0.0, 0.0, 0.0);
         for light in &self.lights {
             let shadowed = self.is_shadowed(comps.over_point, light);
-            color += material.lighting(
+            surface += material.lighting(
                 light,
                 object,
                 comps.point,
@@ -136,32 +143,71 @@ impl World {
                 comps.normalv,
                 shadowed,
             );
-            color += self.reflected_color(comps);
+            let mut curr_reflected = self.reflected_color(comps, max_depth);
+            let mut curr_refracted = self.refracted_color(comps, max_depth);
+
+            if material.reflective > 0.0 && material.transparency > 0.0 {
+                let reflectance = Self::schlick(comps);
+                curr_reflected *= reflectance;
+                curr_refracted *= 1.0 - reflectance;
+            }
+            reflected += curr_reflected;
+            refracted += curr_refracted;
         }
-        color
+        surface + reflected + refracted
     }
 
     #[must_use]
     /// # Panics
     ///
     /// Will panic if `comp` has an invalid value for `object_id`
-    pub fn reflected_color(&self, comps: &Comp) -> Color {
+    pub fn reflected_color(&self, comps: &Comp, max_depth: i32) -> Color {
+        if max_depth <= 0 {
+            return Color::new(0.0, 0.0, 0.0);
+        }
         let object = self.get_object(comps.object_id).unwrap();
         let material = object.material();
         if float_near_equal(material.reflective, 0.0) {
             return Color::new(0.0, 0.0, 0.0);
         }
         let reflect_ray = Ray::new(comps.over_point, comps.reflectv);
-        let color = self.color_at(&reflect_ray);
+        let color = self.color_at(&reflect_ray, max_depth - 1);
         color * material.reflective
     }
 
+    /// # Panics
+    ///
+    /// may panic
     #[must_use]
-    pub fn color_at(&self, r: &Ray) -> Color {
+    pub fn refracted_color(&self, comps: &Comp, remaining: i32) -> Color {
+        if remaining <= 0 {
+            return Color::new(0.0, 0.0, 0.0);
+        }
+        let n_ratio = comps.n1 / comps.n2;
+        let cos_i = comps.eyev.dot_product(&comps.normalv);
+        let sin2_t = (n_ratio * n_ratio) * (1.0 - (cos_i * cos_i));
+        if sin2_t > 1.0 {
+            return Color::new(0.0, 0.0, 0.0);
+        }
+        let object = self.get_object(comps.object_id).unwrap();
+        if object.material().transparency == 0.0 {
+            return Color::new(0.0, 0.0, 0.0);
+        }
+        let cos_t = (1.0 - sin2_t).sqrt();
+        let direction = comps.normalv * (n_ratio * cos_i - cos_t) - comps.eyev * n_ratio;
+        if comps.under_point.contains_nan() || direction.contains_nan() {
+            println!("found NaN!");
+        }
+        let refract_ray = Ray::new(comps.under_point, direction);
+        self.color_at(&refract_ray, remaining - 1) * object.material().transparency
+    }
+
+    #[must_use]
+    pub fn color_at(&self, r: &Ray, max_depth: i32) -> Color {
         let mut ix = self.intersect(r);
-        if let Some(hit) = ix.hit() {
-            let comps = hit.prepare_computation(r, self);
-            self.shade_hit(&comps)
+        if ix.hit().is_some() {
+            let comps = ix.prepare_computation(ix.hit_index, r, self);
+            self.shade_hit(&comps, max_depth)
         } else {
             Color::new(0.0, 0.0, 0.0)
         }
@@ -179,5 +225,20 @@ impl World {
             }
         }
         false
+    }
+
+    #[must_use]
+    pub fn schlick(comps: &Comp) -> f64 {
+        let mut cos = comps.eyev.dot_product(&comps.normalv);
+        if comps.n1 > comps.n2 {
+            let n = comps.n1 / comps.n2;
+            let sin2_t = (n * n) * (1.0 - (cos * cos));
+            if sin2_t > 1.0 {
+                return 1.0;
+            }
+            cos = (1.0 - sin2_t).sqrt();
+        }
+        let r0 = ((comps.n1 - comps.n2) / (comps.n1 + comps.n2)).powf(2.0);
+        r0 + (1.0 - r0) * (1.0 - cos).powf(5.0)
     }
 }

@@ -1,5 +1,5 @@
 use crate::tuple::Tuple;
-#[derive(Clone, Debug, Copy, PartialEq)]
+#[derive(Clone, Debug, Copy, PartialEq, Eq)]
 pub struct Ray {
     pub origin: Tuple,
     pub direction: Tuple,

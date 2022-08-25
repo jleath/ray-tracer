@@ -36,6 +36,14 @@ impl Shape {
     }
 
     #[must_use]
+    pub fn glass_sphere() -> Self {
+        let mut s = Shape::sphere();
+        s.set_transparency(1.0);
+        s.set_refractive_index(1.5);
+        s
+    }
+
+    #[must_use]
     pub fn plane() -> Shape {
         Shape {
             material: Material::new(),
@@ -81,6 +89,14 @@ impl Shape {
 
     pub fn set_diffuse(&mut self, c: f64) {
         self.material.diffuse = c;
+    }
+
+    pub fn set_refractive_index(&mut self, c: f64) {
+        self.material.refractive_index = c;
+    }
+
+    pub fn set_transparency(&mut self, c: f64) {
+        self.material.transparency = c;
     }
 
     pub fn scale(&mut self, x: f64, y: f64, z: f64) {

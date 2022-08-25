@@ -1,8 +1,8 @@
-use crate::canvas::Canvas;
 use crate::ray::Ray;
 use crate::transform::Transform;
 use crate::tuple::Tuple;
 use crate::world::World;
+use crate::{canvas::Canvas, MAX_REFLECT_DEPTH};
 use std::io::{stdout, Write};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -72,7 +72,7 @@ impl Camera {
         for y in 0..self.vsize as usize {
             for x in 0..self.hsize as usize {
                 let r = self.ray_for_pixel(x as f64, y as f64);
-                let color = world.color_at(&r);
+                let color = world.color_at(&r, MAX_REFLECT_DEPTH);
                 pixels_colored += 1;
                 let percent_done = (pixels_colored * 100 / num_pixels * 100) / 100;
                 while percent_done / 2 > progress_string.len() {
