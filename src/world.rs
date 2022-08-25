@@ -214,13 +214,17 @@ impl World {
     }
 
     #[must_use]
+    /// # Panics
+    ///
+    /// Could panic if an intersection has an invalid object id.
     pub fn is_shadowed(&self, p: Tuple, light: &PointLight) -> bool {
         let v = light.position - p;
         let distance = v.magnitude();
         let shadow_ray = Ray::new(p, v.normalize());
         let mut ix = self.intersect(&shadow_ray);
         if let Some(hit) = ix.hit() {
-            if hit.t < distance {
+            let object = self.get_object(hit.object_id).unwrap();
+            if object.has_shadow() && hit.t < distance {
                 return true;
             }
         }

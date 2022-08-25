@@ -20,6 +20,7 @@ pub struct Shape {
     transform: Transform,
     id: Option<usize>,
     kind: ShapeType,
+    casts_shadow: bool,
 }
 
 // TODO: make materials and transforms copies instead of references
@@ -32,6 +33,7 @@ impl Shape {
             transform: Transform::new(),
             id: None,
             kind: ShapeType::Sphere,
+            casts_shadow: true,
         }
     }
 
@@ -50,11 +52,21 @@ impl Shape {
             transform: Transform::new(),
             id: None,
             kind: ShapeType::Plane,
+            casts_shadow: true,
         }
     }
 
     pub fn set_id(&mut self, id: usize) {
         self.id = Some(id);
+    }
+
+    pub fn set_casts_shadow(&mut self, new_value: bool) {
+        self.casts_shadow = new_value;
+    }
+
+    #[must_use]
+    pub fn has_shadow(&self) -> bool {
+        self.casts_shadow
     }
 
     pub fn set_pattern(&mut self, pattern: &Pattern) {

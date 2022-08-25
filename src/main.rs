@@ -36,6 +36,7 @@ fn main() {
     small_ball.translate(1.5, 0.5, -0.5);
     small_ball.set_transparency(1.0);
     small_ball.set_refractive_index(1.00029);
+    small_ball.set_casts_shadow(false);
 
     let mut world = World::new();
     world.add_light(PointLight::new(
@@ -47,7 +48,7 @@ fn main() {
     world.add_object(big_ball);
     world.add_object(small_ball);
 
-    let mut camera = Camera::new(800.0, 400.0, PI / 3.0);
+    let mut camera = Camera::new(200.0, 100.0, PI / 3.0);
     camera.transform = Transform::view_transform(
         &Tuple::point(0.0, 1.5, -8.0),
         &Tuple::point(0.0, 1.0, 0.0),
@@ -56,5 +57,5 @@ fn main() {
 
     let image = camera.render(&world);
 
-    PpmPrinter::dump_to_file(&image, "darker.ppm").unwrap();
+    PpmPrinter::dump_to_file(&image, "no_shadow.ppm").unwrap();
 }
